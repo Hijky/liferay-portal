@@ -1173,6 +1173,22 @@ definition {
 		}
 	}
 
+	@description = "#Undefined is appended to the URL when there is an Asset Publisher in a page."
+	@priority = "3"
+	test UndefinedInUrl {
+		task ("Check the URL when there is an Asset Publisher in a page") {
+			Navigator.openSiteURL(
+				baseURL = "localhost:8080",
+				siteName = "Test Site Name");
+
+			Click(
+				key_pageName = "Asset Publisher Page",
+				locator1 = "Home#PAGE");
+
+			AssertLocation(value1 = "http://localhost:8080/web/test-site-name/asset-publisher-page");
+		}
+	}
+
 	@description = "View assets filter by tag or category in Asset Publisher."
 	@priority = "4"
 	test ViewAssetsFilterByTagOrCategoryInAssetPublisher {
