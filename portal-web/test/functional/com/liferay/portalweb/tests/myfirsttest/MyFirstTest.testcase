@@ -1,0 +1,55 @@
+@component-name = "portal-smoke"
+definition {
+
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Control Menu";
+
+	setUp {
+		User.firstLoginPG();
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+		else {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+
+			JSONUser.tearDownNonAdminUsers();
+		}
+	}
+
+	@description = "Assert the values previously set are persisted."
+	test AssertDefinedCustomDeviceSizePersisted {
+		task ("Open the simulation and select the custom to set height and width") {
+			MobileDevice.previewPG(
+				deviceType = "custom",
+				height = "1920",
+				width = "1080");
+		}
+
+		task ("Close and reopen the simulation") {
+			IFrame.selectTopFrame();
+
+			Click(locator1 = "ControlMenu#SIMULATION");
+
+			Click(locator1 = "ControlMenu#SIMULATION");
+		}
+
+		task ("Equal the values previously set are persisted") {
+			AssertTextEquals(
+				locator1 = "ControlMenuPreviewPanel#PREVIEW_CUSTOM_HEIGHT_FIELD",
+				value1 = "1920");
+
+			AssertTextEquals(
+				locator1 = "ControlMenuPreviewPanel#PREVIEW_CUSTOM_WIDTH_FIELD",
+				value1 = "1080");
+		}
+	}
+
+}
