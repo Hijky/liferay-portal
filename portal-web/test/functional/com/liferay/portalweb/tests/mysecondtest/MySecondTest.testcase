@@ -1,0 +1,41 @@
+@component-name = "portal-smoke"
+definition {
+
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Web Content Administration";
+
+	setUp {
+		User.firstLoginPG();
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+		else {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+
+			JSONUser.tearDownNonAdminUsers();
+		}
+	}
+
+	@description = "Assert CONFIGURATION section is shown."
+	test ViewConfigurationCategoryInApplicationsMenu {
+		ApplicationsMenuHelper.openApplicationsMenu();
+
+		ApplicationsMenu.gotoPanel(panel = "Control Panel");
+
+		task ("Equal the CONFIGURATION category") {
+			AssertTextEquals(
+				key_category = "Configuration",
+				locator1 = "ApplicationsMenu#CATEGORY",
+				value1 = "CONFIGURATION");
+		}
+	}
+
+}
