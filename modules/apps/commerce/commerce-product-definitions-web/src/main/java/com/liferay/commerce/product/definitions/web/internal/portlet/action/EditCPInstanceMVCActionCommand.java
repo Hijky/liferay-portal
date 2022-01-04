@@ -242,13 +242,42 @@ public class EditCPInstanceMVCActionCommand extends BaseMVCActionCommand {
 
 		boolean neverExpire = ParamUtil.getBoolean(
 			actionRequest, "neverExpire");
-
 		String unspsc = ParamUtil.getString(actionRequest, "unspsc");
+		boolean discontinued = ParamUtil.getBoolean(
+			actionRequest, "discontinued");
+
+		CPInstance cpInstance = null;
+
+		String replacementCPInstanceUuid = null;
+		long replacementCProductId = 0;
+
+		long replacementCPInstanceId = ParamUtil.getLong(
+			actionRequest, "replacementCPInstanceId");
+
+		if (replacementCPInstanceId > 0) {
+			CPInstance replacementCPInstance =
+				_cpInstanceService.fetchCPInstance(replacementCPInstanceId);
+
+			if (replacementCPInstance != null) {
+				replacementCPInstanceUuid =
+					replacementCPInstance.getCPInstanceUuid();
+
+				CPDefinition replacementCPDefinition =
+					replacementCPInstance.getCPDefinition();
+
+				replacementCProductId = replacementCPDefinition.getCProductId();
+			}
+		}
+
+		int discontinuedDateMonth = ParamUtil.getInteger(
+			actionRequest, "discontinuedDateMonth");
+		int discontinuedDateDay = ParamUtil.getInteger(
+			actionRequest, "discontinuedDateDay");
+		int discontinuedDateYear = ParamUtil.getInteger(
+			actionRequest, "discontinuedDateYear");
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			CPInstance.class.getName(), actionRequest);
-
-		CPInstance cpInstance = null;
 
 		if (cpInstanceId > 0) {
 			cpInstance = _cpInstanceService.updateCPInstance(
@@ -256,7 +285,10 @@ public class EditCPInstanceMVCActionCommand extends BaseMVCActionCommand {
 				published, displayDateMonth, displayDateDay, displayDateYear,
 				displayDateHour, displayDateMinute, expirationDateMonth,
 				expirationDateDay, expirationDateYear, expirationDateHour,
-				expirationDateMinute, neverExpire, unspsc, serviceContext);
+				expirationDateMinute, neverExpire, unspsc, discontinued,
+				replacementCPInstanceUuid, replacementCProductId,
+				discontinuedDateMonth, discontinuedDateDay,
+				discontinuedDateYear, serviceContext);
 		}
 		else {
 			long cpDefinitionId = ParamUtil.getLong(
@@ -275,7 +307,10 @@ public class EditCPInstanceMVCActionCommand extends BaseMVCActionCommand {
 				published, displayDateMonth, displayDateDay, displayDateYear,
 				displayDateHour, displayDateMinute, expirationDateMonth,
 				expirationDateDay, expirationDateYear, expirationDateHour,
-				expirationDateMinute, neverExpire, unspsc, serviceContext);
+				expirationDateMinute, neverExpire, unspsc, discontinued,
+				replacementCPInstanceUuid, replacementCProductId,
+				discontinuedDateMonth, discontinuedDateDay,
+				discontinuedDateYear, serviceContext);
 		}
 
 		// Update pricing info

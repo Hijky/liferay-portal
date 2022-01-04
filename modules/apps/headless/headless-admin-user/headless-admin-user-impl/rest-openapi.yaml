@@ -1011,7 +1011,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.admin.user.client', and version '4.0.13'."
+        'com.liferay.headless.admin.user.client', and version '4.0.15'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -3856,9 +3856,6 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/UserGroup"
-                    # @review
-                    description:
-                        "User group successfully created"
             tags: ["UserGroup"]
     "/user-groups/{userGroupId}":
         delete:
@@ -3895,6 +3892,33 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/UserGroup"
             tags: ["UserGroup"]
+        patch:
+            operationId: patchUserGroup
+            parameters:
+                - in: path
+                  name: userGroupId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UserGroup"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/UserGroup"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/UserGroup"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/UserGroup"
+            tags: ["UserGroup"]
         put:
             operationId: putUserGroup
             parameters:
@@ -3921,9 +3945,6 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/UserGroup"
-                    # @review
-                    description:
-                        "User group successfully replaced"
             tags: ["UserGroup"]
     "/web-urls/{webUrlId}":
         get:

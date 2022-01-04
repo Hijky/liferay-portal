@@ -1,11 +1,15 @@
 import {gql} from '@apollo/client';
 
 export const getSetupDXPCloudInfo = gql`
-	query getSetupDXPCloudInfo(
-		$accountSubscriptionsFilter: String
-		$koroneikiAccountsFilter: String
-	) {
+	query getSetupDXPCloudInfo($accountSubscriptionsFilter: String) {
 		c {
+			accountSubscriptions(filter: $accountSubscriptionsFilter) {
+				items {
+					accountKey
+					hasDisasterDataCenterRegion
+					name
+				}
+			}
 			dXPCDataCenterRegions {
 				items {
 					dxpcDataCenterRegionId
@@ -13,53 +17,56 @@ export const getSetupDXPCloudInfo = gql`
 					value
 				}
 			}
-			accountSubscriptions(filter: $accountSubscriptionsFilter) {
+		}
+	}
+`;
+
+export const getAccountSubscriptionsTerms = gql`
+	query getAccountSubscriptionsTerms(
+		$filter: String
+		$page: Int
+		$pageSize: Int
+	) {
+		c {
+			accountSubscriptionTerms(
+				filter: $filter
+				page: $page
+				pageSize: $pageSize
+			) {
 				items {
 					accountKey
-					name
-					hasDisasterDataCenterRegion
+					accountSubscriptionERC
+					accountSubscriptionGroupERC
+					accountSubscriptionTermId
+					c_accountSubscriptionTermId
+					endDate
+					instanceSize
+					provisioned
+					quantity
+					startDate
+					subscriptionTermStatus
 				}
-			}
-			koroneikiAccounts(filter: $koroneikiAccountsFilter) {
-				items {
-					accountKey
-					code
-					dxpVersion
-					liferayContactEmailAddress
-					liferayContactName
-					liferayContactRole
-					region
-					slaCurrent
-					slaCurrentEndDate
-					slaExpired
-					slaFuture
-				}
+				totalCount
 			}
 		}
 	}
 `;
 
 export const getAccountSubscriptions = gql`
-	query getAccountSubscriptions(
-		$aggregation: [String]
-		$filter: String
-		$page: Int = 1
-		$pageSize: Int = 20
-		$search: String
-		$sort: String
-	) {
+	query getAccountSubscriptions($filter: String) {
 		c {
-			accountSubscriptions(
-				aggregation: $aggregation
-				filter: $filter
-				page: $page
-				pageSize: $pageSize
-				search: $search
-				sort: $sort
-			) {
+			accountSubscriptions(filter: $filter) {
 				items {
 					accountKey
+					accountSubscriptionGroupERC
+					accountSubscriptionId
+					c_accountSubscriptionId
+					endDate
+					instanceSize
 					name
+					quantity
+					startDate
+					subscriptionStatus
 				}
 			}
 		}
@@ -109,13 +116,13 @@ export const getBannedEmailDomains = gql`
 
 export const addSetupDXPCloud = gql`
 	mutation addSetupDXPCloud(
-		$SetupDXPCloud: InputC_SetupDXPCloud!
 		$scopeKey: String
+		$SetupDXPCloud: InputC_SetupDXPCloud!
 	) {
 		c {
 			createSetupDXPCloud(
-				SetupDXPCloud: $SetupDXPCloud
 				scopeKey: $scopeKey
+				SetupDXPCloud: $SetupDXPCloud
 			) {
 				admins
 				dataCenterRegion
@@ -126,10 +133,27 @@ export const addSetupDXPCloud = gql`
 	}
 `;
 
+export const addTeamMembersInvitation = gql`
+	mutation addTeamMembersInvitation(
+		$scopeKey: String
+		$TeamMembersInvitation: InputC_TeamMembersInvitation!
+	) {
+		c {
+			createTeamMembersInvitation(
+				scopeKey: $scopeKey
+				TeamMembersInvitation: $TeamMembersInvitation
+			) {
+				email
+				role
+			}
+		}
+	}
+`;
+
 export const getAccountRolesAndAccountFlags = gql`
 	query getAccountRolesAndAccountFlags(
-		$accountId: Long!
 		$accountFlagsFilter: String
+		$accountId: Long!
 	) {
 		accountAccountRoles(accountId: $accountId) {
 			items {
@@ -150,7 +174,7 @@ export const getAccountRolesAndAccountFlags = gql`
 `;
 
 export const getAccountSubscriptionGroups = gql`
-	query accountSubscriptionGroups(
+	query getAccountSubscriptionGroups(
 		$aggregation: [String]
 		$filter: String
 		$page: Int = 1
@@ -176,20 +200,6 @@ export const getAccountSubscriptionGroups = gql`
 	}
 `;
 
-export const getDXPCDataCenterRegions = gql`
-	query getDXPCDataCenterRegions {
-		c {
-			dXPCDataCenterRegions {
-				items {
-					dxpcDataCenterRegionId
-					name
-					value
-				}
-			}
-		}
-	}
-`;
-
 export const getKoroneikiAccounts = gql`
 	query getKoroneikiAccounts($filter: String) {
 		c {
@@ -198,6 +208,8 @@ export const getKoroneikiAccounts = gql`
 					accountKey
 					code
 					dxpVersion
+					partner
+					maxRequestors
 					liferayContactEmailAddress
 					liferayContactName
 					liferayContactRole
@@ -216,14 +228,27 @@ export const getUserAccount = gql`
 	query getUserAccount($id: Long!) {
 		userAccount(userAccountId: $id) {
 			accountBriefs {
-				id
 				externalReferenceCode
+				id
 				name
 			}
-			id
 			externalReferenceCode
+			id
 			image
 			name
+		}
+	}
+`;
+
+export const getAccountSubscriptionsGroups = gql`
+	query getAccountSubscriptionGroups($accountSubscriptionGroupERC: String) {
+		c {
+			accountSubscriptions(filter: $accountSubscriptionGroupERC) {
+				items {
+					name
+					accountSubscriptionGroupERC
+				}
+			}
 		}
 	}
 `;

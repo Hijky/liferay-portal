@@ -98,16 +98,19 @@ components:
             properties:
                 advancedConfiguration:
                     properties:
-                        excludes:
-                            items:
-                                type: string
-                            type: array
-                        fetchSource:
-                            type: boolean
-                        includes:
-                            items:
-                                type: string
-                            type: array
+                        source:
+                            properties:
+                                excludes:
+                                    items:
+                                        type: string
+                                    type: array
+                                fetchSource:
+                                    type: boolean
+                                includes:
+                                    items:
+                                        type: string
+                                    type: array
+                            type: object
                     type: object
                 aggregationConfiguration:
                     properties:
@@ -204,18 +207,16 @@ components:
                                 type: object
                             type: array
                     type: object
+                searchContextAttributes:
+                    additionalProperties:
+                        type: object
+                    type: object
                 sortConfiguration:
                     properties:
                         sorts:
                             type: object
                     type: object
             type: object
-        DocumentField:
-            properties:
-                values:
-                    items:
-                        type: object
-                    type: array
         ElementDefinition:
             properties:
                 category:
@@ -341,7 +342,7 @@ components:
                 min:
                     type: object
                 type:
-                    enum: [Date, Double, Float, Integer, IntegerArray, Long, LongArray, String, StringArray, TimeRange]
+                    enum: [Boolean, Date, Double, Float, Integer, IntegerArray, Long, LongArray, String, StringArray, TimeRange]
                     type: string
             type: object
         QueryPrefilterContributor:
@@ -423,44 +424,16 @@ components:
                 templateVariable:
                     type: string
             type: object
-        SearchRequest:
-            properties:
-                queryString:
-                    type: string
-            type: object
         SearchResponse:
             properties:
-                documents:
-                    items:
-                        properties:
-                            documentFields:
-                                additionalProperties:
-                                    $ref: "#/components/schemas/DocumentField"
-                                type: object
-                            explanation:
-                                type: string
-                            score:
-                                format: double
-                                type: number
-                        type: object
-                    type: array
-                maxScore:
-                    format: double
-                    type: number
                 page:
                     type: integer
                 pageSize:
                     type: integer
-                request:
-                    type: object
                 requestString:
                     type: string
-                response:
-                    type: object
                 responseString:
                     type: string
-                searchRequest:
-                    $ref: "#/components/schemas/SearchRequest"
                 totalHits:
                     type: integer
             type: object

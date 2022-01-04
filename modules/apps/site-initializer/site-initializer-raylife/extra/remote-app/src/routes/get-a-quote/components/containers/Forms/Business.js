@@ -4,7 +4,8 @@ import {NumberControlledInput} from '../../../../../common/components/connectors
 import {PercentageControlledInput} from '../../../../../common/components/connectors/Controlled/Input/WithMask/Percentage';
 import {LegalEntityControlledSelect} from '../../../../../common/components/connectors/Controlled/Select/LegalEntity';
 import {ControlledSwitch} from '../../../../../common/components/connectors/Controlled/Switch';
-import {CardFormActionsWithSave} from '../../../../../common/components/fragments/Card/FormActionsWithSave';
+import {CardFormActions} from '../../../../../common/components/fragments/Card/FormActions';
+import FormCard from '../../../../../common/components/fragments/Card/FormCard';
 import {TIP_EVENT} from '../../../../../common/utils/events';
 import {PERCENTAGE_REGEX_MAX_100} from '../../../../../common/utils/patterns';
 import useFormActions from '../../../hooks/useFormActions';
@@ -49,7 +50,7 @@ export function FormBusiness({form}) {
 	const {isSelected, updateState} = useTriggerContext();
 
 	return (
-		<div className="card">
+		<FormCard>
 			<div className="card-content">
 				<NumberControlledInput
 					control={control}
@@ -92,6 +93,7 @@ export function FormBusiness({form}) {
 
 				<LegalEntityControlledSelect
 					control={control}
+					inputProps={{className: 'mb-5'}}
 					label="Legal Entity"
 					name={setFormPath('legalEntity')}
 					rules={{
@@ -154,12 +156,12 @@ export function FormBusiness({form}) {
 				)}
 			</div>
 
-			<CardFormActionsWithSave
+			<CardFormActions
 				isValid={isValid}
 				onNext={onNext}
 				onPrevious={onPrevious}
 				onSave={onSave}
 			/>
-		</div>
+		</FormCard>
 	);
 }

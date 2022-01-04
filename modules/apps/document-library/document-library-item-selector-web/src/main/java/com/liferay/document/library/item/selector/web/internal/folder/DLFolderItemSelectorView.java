@@ -29,7 +29,6 @@ import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.bean.BeanParamUtil;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
-import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.language.LanguageResources;
@@ -106,10 +105,12 @@ public class DLFolderItemSelectorView
 		RequestDispatcher requestDispatcher =
 			_servletContext.getRequestDispatcher("/select_folder.jsp");
 
-		long repositoryId = ParamUtil.getLong(
-			(HttpServletRequest)servletRequest, "repositoryId");
-		long folderId = ParamUtil.getLong(
-			(HttpServletRequest)servletRequest, "folderId");
+		long repositoryId = BeanParamUtil.getLong(
+			itemSelectorCriterion, (HttpServletRequest)servletRequest,
+			"repositoryId");
+		long folderId = BeanParamUtil.getLong(
+			itemSelectorCriterion, (HttpServletRequest)servletRequest,
+			"folderId");
 
 		servletRequest.setAttribute(
 			DLSelectFolderDisplayContext.class.getName(),
@@ -118,10 +119,10 @@ public class DLFolderItemSelectorView
 				(HttpServletRequest)servletRequest, portletURL,
 				BeanParamUtil.getLong(
 					itemSelectorCriterion, (HttpServletRequest)servletRequest,
-					"selectedFolderId",
-					BeanParamUtil.getLong(
-						itemSelectorCriterion,
-						(HttpServletRequest)servletRequest, "folderId")),
+					"selectedRepositoryId"),
+				BeanParamUtil.getLong(
+					itemSelectorCriterion, (HttpServletRequest)servletRequest,
+					"selectedFolderId", folderId),
 				repositoryId, _isShowGroupSelector(itemSelectorCriterion)));
 
 		requestDispatcher.include(servletRequest, servletResponse);

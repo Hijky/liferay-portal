@@ -58,12 +58,15 @@ import com.liferay.search.experiences.internal.blueprint.parameter.contributor.S
 import com.liferay.search.experiences.rest.dto.v1_0.AdvancedConfiguration;
 import com.liferay.search.experiences.rest.dto.v1_0.AggregationConfiguration;
 import com.liferay.search.experiences.rest.dto.v1_0.Configuration;
+import com.liferay.search.experiences.rest.dto.v1_0.ElementDefinition;
+import com.liferay.search.experiences.rest.dto.v1_0.ElementInstance;
 import com.liferay.search.experiences.rest.dto.v1_0.GeneralConfiguration;
 import com.liferay.search.experiences.rest.dto.v1_0.HighlightConfiguration;
 import com.liferay.search.experiences.rest.dto.v1_0.HighlightField;
 import com.liferay.search.experiences.rest.dto.v1_0.ParameterConfiguration;
 import com.liferay.search.experiences.rest.dto.v1_0.QueryConfiguration;
 import com.liferay.search.experiences.rest.dto.v1_0.SXPBlueprint;
+import com.liferay.search.experiences.rest.dto.v1_0.SXPElement;
 import com.liferay.search.experiences.rest.dto.v1_0.SortConfiguration;
 import com.liferay.search.experiences.rest.dto.v1_0.util.SXPBlueprintUtil;
 
@@ -104,6 +107,36 @@ public class SXPBlueprintSearchRequestEnhancerImplTest {
 			aggregationsMap.toString(), 10, aggregationsMap.size());
 
 		_assert(sxpBlueprint);
+	}
+
+	@Test
+	public void testConfigurationEntry() throws Exception {
+		SXPBlueprint sxpBlueprint = SXPBlueprintUtil.toSXPBlueprint(_read());
+
+		SearchRequest searchRequest = _toSearchRequest(
+			sxpBlueprint,
+			searchRequestBuilder -> searchRequestBuilder.queryString(
+				"search that"));
+
+		List<ComplexQueryPart> complexQueryParts =
+			searchRequest.getComplexQueryParts();
+
+		ComplexQueryPart complexQueryPart = complexQueryParts.get(0);
+
+		Assert.assertEquals("filter", complexQueryPart.getOccur());
+
+		WrapperQuery wrapperQuery = (WrapperQuery)complexQueryPart.getQuery();
+
+		Assert.assertEquals(
+			_formatJSON(
+				JSONUtil.put(
+					"multi_match",
+					JSONUtil.put(
+						"fuzziness", "2"
+					).put(
+						"query", "search that"
+					))),
+			_formatJSON(new String(wrapperQuery.getSource())));
 	}
 
 	@Test
@@ -210,6 +243,37 @@ public class SXPBlueprintSearchRequestEnhancerImplTest {
 	}
 
 	@Test
+	public void testEmptyElementInstances() throws Exception {
+		SXPBlueprint sxpBlueprint = _createSXPBlueprint();
+
+		sxpBlueprint.setElementInstances(
+			new ElementInstance[] {
+				new ElementInstance(),
+				new ElementInstance() {
+					{
+						sxpElement = new SXPElement();
+					}
+				},
+				new ElementInstance() {
+					{
+						sxpElement = new SXPElement() {
+							{
+								elementDefinition = new ElementDefinition();
+							}
+						};
+					}
+				}
+			});
+
+		SearchRequest searchRequest = _toSearchRequest(sxpBlueprint);
+
+		Assert.assertTrue(
+			ListUtil.isEmpty(searchRequest.getComplexQueryParts()));
+
+		_assert(sxpBlueprint);
+	}
+
+	@Test
 	public void testHighlightConfiguration() throws Exception {
 		SXPBlueprint sxpBlueprint = _createSXPBlueprint();
 
@@ -253,6 +317,42 @@ public class SXPBlueprintSearchRequestEnhancerImplTest {
 	}
 
 	@Test
+	public void testNullable() throws Exception {
+		SXPBlueprint sxpBlueprint = SXPBlueprintUtil.toSXPBlueprint(_read());
+
+		try {
+			_toSearchRequest(sxpBlueprint);
+
+			Assert.fail();
+		}
+		catch (RuntimeException runtimeException) {
+
+			// TODO Remove the whole key just like client side expansion
+
+			Throwable throwable = runtimeException.getSuppressed()[0];
+
+			InvalidQueryEntryException invalidQueryEntryException =
+				(InvalidQueryEntryException)throwable.getSuppressed()[0];
+
+			Assert.assertEquals(0, invalidQueryEntryException.getIndex());
+
+			UnresolvedTemplateVariableException
+				unresolvedTemplateVariableException =
+					(UnresolvedTemplateVariableException)
+						invalidQueryEntryException.getSuppressed()[0];
+
+			Assert.assertEquals(
+				"[configuration.fuzziness, " +
+					"configuration.minimum_should_match, configuration.slop]",
+				Arrays.toString(
+					unresolvedTemplateVariableException.
+						getTemplateVariables()));
+
+			_assert(sxpBlueprint);
+		}
+	}
+
+	@Test
 	public void testParameterConfiguration() throws Exception {
 		SXPBlueprint sxpBlueprint = SXPBlueprintUtil.toSXPBlueprint(_read());
 
@@ -264,38 +364,132 @@ public class SXPBlueprintSearchRequestEnhancerImplTest {
 		catch (RuntimeException runtimeException) {
 			Throwable throwable = runtimeException.getSuppressed()[0];
 
-			InvalidQueryEntryException invalidQueryEntryException =
+			InvalidQueryEntryException invalidQueryEntryException1 =
 				(InvalidQueryEntryException)throwable.getSuppressed()[0];
 
+			Assert.assertEquals(0, invalidQueryEntryException1.getIndex());
+
 			UnresolvedTemplateVariableException
-				unresolvedTemplateVariableException =
+				unresolvedTemplateVariableException1 =
 					(UnresolvedTemplateVariableException)
-						invalidQueryEntryException.getSuppressed()[0];
+						invalidQueryEntryException1.getSuppressed()[0];
 
 			Assert.assertEquals(
 				"[version.number]",
 				Arrays.toString(
-					unresolvedTemplateVariableException.
+					unresolvedTemplateVariableException1.
+						getTemplateVariables()));
+
+			InvalidQueryEntryException invalidQueryEntryException2 =
+				(InvalidQueryEntryException)throwable.getSuppressed()[1];
+
+			Assert.assertEquals(1, invalidQueryEntryException2.getIndex());
+
+			IllegalArgumentException illegalArgumentException =
+				(IllegalArgumentException)
+					invalidQueryEntryException2.getSuppressed()[0];
+
+			Assert.assertEquals(
+				"Invalid parameter name product.code",
+				illegalArgumentException.getMessage());
+
+			InvalidQueryEntryException invalidQueryEntryException3 =
+				(InvalidQueryEntryException)throwable.getSuppressed()[2];
+
+			Assert.assertEquals(2, invalidQueryEntryException3.getIndex());
+
+			UnresolvedTemplateVariableException
+				unresolvedTemplateVariableException2 =
+					(UnresolvedTemplateVariableException)
+						invalidQueryEntryException3.getSuppressed()[0];
+
+			Assert.assertEquals(
+				"[product.code]",
+				Arrays.toString(
+					unresolvedTemplateVariableException2.
 						getTemplateVariables()));
 		}
 
 		SearchRequest searchRequest = _toSearchRequest(
 			sxpBlueprint,
 			searchRequestBuilder -> searchRequestBuilder.withSearchContext(
-				searchContext -> searchContext.setAttribute(
-					"version.number", "7.4")));
+				searchContext -> {
+					searchContext.setAttribute("product.code", "dxp");
+					searchContext.setAttribute("version.number", "7.4");
+				}));
 
 		List<ComplexQueryPart> complexQueryParts =
 			searchRequest.getComplexQueryParts();
 
-		ComplexQueryPart complexQueryPart = complexQueryParts.get(0);
+		ComplexQueryPart complexQueryPart1 = complexQueryParts.get(0);
 
-		TermQuery termQuery = (TermQuery)complexQueryPart.getQuery();
+		TermQuery termQuery1 = (TermQuery)complexQueryPart1.getQuery();
 
-		Assert.assertEquals("version", termQuery.getField());
-		Assert.assertEquals("7.4", termQuery.getValue());
+		Assert.assertEquals("version", termQuery1.getField());
+		Assert.assertEquals("7.4", termQuery1.getValue());
+
+		ComplexQueryPart complexQueryPart2 = complexQueryParts.get(1);
+
+		TermQuery termQuery2 = (TermQuery)complexQueryPart2.getQuery();
+
+		Assert.assertEquals("ranking", termQuery2.getField());
+		Assert.assertEquals(5, termQuery2.getValue());
+
+		ComplexQueryPart complexQueryPart3 = complexQueryParts.get(2);
+
+		TermQuery termQuery3 = (TermQuery)complexQueryPart3.getQuery();
+
+		Assert.assertEquals("ranking", termQuery3.getField());
+		Assert.assertEquals("1", termQuery3.getValue());
 
 		_assert(sxpBlueprint);
+	}
+
+	@Test
+	public void testParameterValueWithUnitSuffix() throws Exception {
+		SXPBlueprint sxpBlueprint = SXPBlueprintUtil.toSXPBlueprint(_read());
+
+		SearchRequest searchRequest = _toSearchRequest(sxpBlueprint);
+
+		List<ComplexQueryPart> complexQueryParts =
+			searchRequest.getComplexQueryParts();
+
+		ComplexQueryPart complexQueryPart1 = complexQueryParts.get(0);
+
+		Assert.assertEquals("must", complexQueryPart1.getOccur());
+
+		TermQuery termQuery1 = (TermQuery)complexQueryPart1.getQuery();
+
+		Assert.assertEquals("version", termQuery1.getField());
+		Assert.assertEquals("7.4", termQuery1.getValue());
+
+		ComplexQueryPart complexQueryPart2 = complexQueryParts.get(1);
+
+		Assert.assertEquals("should", complexQueryPart2.getOccur());
+
+		WrapperQuery wrapperQuery = (WrapperQuery)complexQueryPart2.getQuery();
+
+		Assert.assertEquals(
+			_formatJSON(
+				JSONUtil.put(
+					"function_score",
+					JSONUtil.put(
+						"boost", "100"
+					).put(
+						"gauss",
+						JSONUtil.put(
+							"modified",
+							JSONUtil.put(
+								"decay", "0.01"
+							).put(
+								"offset", "0d"
+							).put(
+								"origin", "20211209082600"
+							).put(
+								"scale", "9d"
+							))
+					))),
+			_formatJSON(new String(wrapperQuery.getSource())));
 	}
 
 	@Test
@@ -355,6 +549,25 @@ public class SXPBlueprintSearchRequestEnhancerImplTest {
 			Float.valueOf(0.7F), rescore.getRescoreQueryWeight());
 		Assert.assertEquals(Rescore.ScoreMode.MULTIPLY, rescore.getScoreMode());
 		Assert.assertEquals(Integer.valueOf(6), rescore.getWindowSize());
+
+		_assert(sxpBlueprint);
+	}
+
+	@Test
+	public void testSearchContextAttributes() throws Exception {
+		SXPBlueprint sxpBlueprint = SXPBlueprintUtil.toSXPBlueprint(_read());
+
+		SearchRequest searchRequest = _toSearchRequest(sxpBlueprint);
+
+		List<ComplexQueryPart> complexQueryParts =
+			searchRequest.getComplexQueryParts();
+
+		ComplexQueryPart complexQueryPart = complexQueryParts.get(0);
+
+		TermQuery termQuery = (TermQuery)complexQueryPart.getQuery();
+
+		Assert.assertEquals("version", termQuery.getField());
+		Assert.assertEquals("7.4", termQuery.getValue());
 
 		_assert(sxpBlueprint);
 	}

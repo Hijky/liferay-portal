@@ -108,8 +108,7 @@ definition {
 	test BlacklistModuleWar {
 		property test.name.skip.portal.instance = "BundleBlacklist#BlacklistModuleWar";
 
-		Page.viewCurrentTheme(
-			page = "Public Pages",
+		PagesAdmin.viewWidgetPageCurrentTheme(
 			pageName = "Search",
 			themeName = "Classic Theme");
 
@@ -129,17 +128,15 @@ definition {
 
 		AssertConsoleTextPresent(value1 = "STOPPED classic-theme");
 
-		SitePages.openPagesAdmin(siteURLKey = "guest");
+		PagesAdmin.openPagesAdmin(siteURLKey = "guest");
 
-		SitePages.gotoPageMenuItem(
+		PagesAdmin.gotoPageEllipsisMenuItem(
 			menuItem = "Configure",
 			pageName = "Search");
 
 		Navigator.gotoNavTab(navTab = "Look and Feel");
 
-		AssertTextNotPresent(
-			locator1 = "SitePagesEditPage#VIEW_THEME",
-			value1 = "Classic Theme");
+		AssertTextNotPresent(value1 = "Classic Theme");
 	}
 
 	@priority = "3"
@@ -262,17 +259,19 @@ definition {
 
 		AssertConsoleTextPresent(value1 = "STARTED minium-theme");
 
-		SitePages.openPagesAdmin(siteURLKey = "guest");
+		PagesAdmin.openPagesAdmin(siteURLKey = "guest");
 
-		SitePages.gotoPageMenuItem(
+		PagesAdmin.gotoPageEllipsisMenuItem(
 			menuItem = "Configure",
 			pageName = "Search");
 
 		Navigator.gotoNavTab(navTab = "Look and Feel");
 
-		Click(locator1 = "SitePagesEditPage#REGULAR_UNIQUE_LOOK_AND_FEEL");
+		Theme.configureLookAndFeelSpecificLook();
 
-		Click(locator1 = "SitePagesEditPage#CHANGE_CURRENT_THEME_BUTTON");
+		Click(
+			key_text = "Change Current Theme",
+			locator1 = "Button#ANY");
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
@@ -334,17 +333,19 @@ definition {
 
 		AssertConsoleTextPresent(value1 = "Stopping blacklisted bundle minium-theme");
 
-		SitePages.openPagesAdmin(siteURLKey = "guest");
+		PagesAdmin.openPagesAdmin(siteURLKey = "guest");
 
-		SitePages.gotoPageMenuItem(
+		PagesAdmin.gotoPageEllipsisMenuItem(
 			menuItem = "Configure",
 			pageName = "Search");
 
 		Navigator.gotoNavTab(navTab = "Look and Feel");
 
-		Click(locator1 = "SitePagesEditPage#REGULAR_UNIQUE_LOOK_AND_FEEL");
+		Theme.configureLookAndFeelSpecificLook();
 
-		Click(locator1 = "SitePagesEditPage#CHANGE_CURRENT_THEME_BUTTON");
+		Click(
+			key_text = "Change Current Theme",
+			locator1 = "Button#ANY");
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
@@ -371,17 +372,19 @@ definition {
 
 		AssertConsoleTextPresent(value1 = "Reinstalling bundle minium-theme");
 
-		SitePages.openPagesAdmin(siteURLKey = "guest");
+		PagesAdmin.openPagesAdmin(siteURLKey = "guest");
 
-		SitePages.gotoPageMenuItem(
+		PagesAdmin.gotoPageEllipsisMenuItem(
 			menuItem = "Configure",
 			pageName = "Search");
 
 		Navigator.gotoNavTab(navTab = "Look and Feel");
 
-		Click(locator1 = "SitePagesEditPage#REGULAR_UNIQUE_LOOK_AND_FEEL");
+		Theme.configureLookAndFeelSpecificLook();
 
-		Click(locator1 = "SitePagesEditPage#CHANGE_CURRENT_THEME_BUTTON");
+		Click(
+			key_text = "Change Current Theme",
+			locator1 = "Button#ANY");
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
@@ -559,17 +562,19 @@ definition {
 
 		Portlet.startServer(keepOSGiState = "true");
 
-		SitePages.openPagesAdmin(siteURLKey = "guest");
+		PagesAdmin.openPagesAdmin(siteURLKey = "guest");
 
-		SitePages.gotoPageMenuItem(
+		PagesAdmin.gotoPageEllipsisMenuItem(
 			menuItem = "Configure",
 			pageName = "Search");
 
 		Navigator.gotoNavTab(navTab = "Look and Feel");
 
-		Click(locator1 = "SitePagesEditPage#REGULAR_UNIQUE_LOOK_AND_FEEL");
+		Theme.configureLookAndFeelSpecificLook();
 
-		Click(locator1 = "SitePagesEditPage#CHANGE_CURRENT_THEME_BUTTON");
+		Click(
+			key_text = "Change Current Theme",
+			locator1 = "Button#ANY");
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 

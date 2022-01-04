@@ -211,7 +211,7 @@ definition {
 
 	macro addContentPage {
 		task ("Add a content page in Test Site Name site") {
-			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
 			ContentPages.addPage(pageName = "Test Content Page Name");
 		}
@@ -450,7 +450,7 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		SitePages.addPublicPage(pageName = "Form Page");
+		PagesAdmin.addPublicPage(pageName = "Form Page");
 
 		Navigator.gotoPage(pageName = "Form Page");
 
@@ -1116,6 +1116,17 @@ definition {
 		DMMetadataSet.delete(metadataSetName = "Document Metadata Set Name Edit");
 	}
 
+	macro deleteImageResolution {
+		AdaptiveMedia.openAdaptiveMediaAdmin();
+
+		AdaptiveMedia.disableImageResolution(
+			imageName = "Low Resolution",
+			imageState = "Disabled",
+			percentAdapted = "0");
+
+		AdaptiveMedia.deleteImageResolution(imageName = "Low Resolution");
+	}
+
 	macro editAndDeleteBlogEntry {
 		if (isSet(video)) {
 			Navigator.gotoPage(pageName = "Blogs");
@@ -1372,6 +1383,20 @@ definition {
 		AssertElementPresent(
 			key_fieldFieldLabel = "Phone Number",
 			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL");
+	}
+
+	macro editImageResolution {
+		AdaptiveMedia.openAdaptiveMediaAdmin();
+
+		AdaptiveMedia.editImageResolution(
+			imageName = "Low Resolution",
+			imageNameEdit = "Low Resolution Edited",
+			maxHeightEdit = "480",
+			maxWidthEdit = "320");
+
+		AdaptiveMedia.selectAdaptiveMediaImage(imageName = "Low Resolution Edited");
+
+		AdaptiveMedia.viewNumberOfAdaptedImages(numberOfAdaptedImages = "0/1");
 	}
 
 	macro editTagsAndDeleteAutoTaggedBlogsEntry {
@@ -1716,6 +1741,44 @@ definition {
 					webContentTitle = "Web Content Title ${n}");
 			}
 		}
+	}
+
+	macro ignore404URLs {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.open404URLsAdmin(siteURLKey = "test-site-name");
+
+		Redirect.view404URLs(
+			ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			requestNumber = "1");
+
+		Redirect.view404URLs(
+			ignoreURL = "${portalURL}/web/test-site-name/test-destination-page2",
+			requestNumber = "1");
+
+		Redirect.ignoreEntry(
+			ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			skipNavigation = "true");
+
+		Redirect.open404URLsAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntryVia404URLs(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-temporary-page",
+			ignoredURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			siteName = "test-site-name",
+			skipNavigation = "true",
+			sourceURL = "test-destination-page1");
+
+		Redirect.open404URLsAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntryVia404URLs(
+			activeIgnoreURL = "${portalURL}/web/test-site-name/test-destination-page2",
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-temporary-page",
+			siteName = "test-site-name",
+			skipNavigation = "true",
+			sourceURL = "test-destination-page2");
+
+		Redirect.view404URLsDefault();
 	}
 
 	macro publishCollectionsInRemoteStagingDepot {
@@ -2877,6 +2940,27 @@ definition {
 			entryTitle = "Blogs Entry After Upgrade Title");
 	}
 
+	macro viewAndAddImageResolution {
+		AdaptiveMedia.openAdaptiveMediaAdmin();
+
+		AdaptiveMedia.selectAdaptiveMediaImage(imageName = "Thumbnail 300x300");
+
+		AdaptiveMedia.viewNumberOfAdaptedImages(numberOfAdaptedImages = "2/2");
+
+		AdaptiveMedia.openToAddImageResolution();
+
+		AdaptiveMedia.addImageResolution(
+			imageName = "Low Resolution",
+			maxHeight = "480",
+			maxWidth = "320");
+
+		AdaptiveMedia.viewImageResolutionTableEntry(
+			imageName = "Low Resolution",
+			maxHeight = "480",
+			maxWidth = "320",
+			percentAdapted = "0");
+	}
+
 	macro viewAndAddKBArticle {
 		Navigator.gotoPage(pageName = "Knowledge Base");
 
@@ -3126,9 +3210,9 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+		PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
-		SitePages.gotoPageMenuItem(
+		PagesAdmin.gotoPageEllipsisMenuItem(
 			menuItem = "Configure",
 			pageName = "Test Page Name");
 

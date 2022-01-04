@@ -296,16 +296,6 @@ definition {
 			relatedAssetsTitle = "Web Content Title");
 	}
 
-	@description = "This is a test for LPS-136821. It checks that a repository can be published."
-	@ignore = "true"
-	@priority = "3"
-	test CanPublishRepository {
-		property portal.acceptance = "false";
-
-		// TODO LPS-136821 CanPublishRepository pending implementation
-
-	}
-
 	@description = "This is a test for LPS-136826. It checks that a shortcut can be published using the normal publication process."
 	@priority = "3"
 	test CanPublishShortcut {
@@ -371,6 +361,8 @@ definition {
 	@description = "This is a test for LPS-136822. It checks that a document type can be updated and published using the normal publication process."
 	@priority = "3"
 	test CanPublishUpdatedDocumentType {
+		property osgi.app.includes = "document-library-google-docs";
+
 		JSONLayout.addWidgetToPublicLayout(
 			column = "1",
 			groupName = "Site Name (Staging)",
@@ -533,6 +525,8 @@ definition {
 	@priority = "3"
 	@refactorneeded
 	test CommentDMDocumentOnLiveSite {
+		property testray.component.names = "Comment";
+
 		Navigator.gotoStagedSitePage(
 			pageName = "Staging DM Page",
 			siteName = "Site Name");

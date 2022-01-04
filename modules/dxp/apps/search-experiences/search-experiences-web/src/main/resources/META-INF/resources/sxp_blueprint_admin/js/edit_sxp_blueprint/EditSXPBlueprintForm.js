@@ -30,6 +30,7 @@ import {
 	getUIConfigurationValues,
 	isDefined,
 	parseCustomSXPElement,
+	transformToSearchContextAttributes,
 } from '../utils/utils';
 import {
 	validateBoost,
@@ -435,7 +436,7 @@ function EditSXPBlueprintForm({
 		});
 	};
 
-	const _handleFetchPreviewSearch = (value, delta, page /* attributes*/) => {
+	const _handleFetchPreviewSearch = (value, delta, page, attributes) => {
 		setPreviewInfo((previewInfo) => ({
 			...previewInfo,
 			loading: true,
@@ -486,15 +487,18 @@ function EditSXPBlueprintForm({
 			}),
 			{
 				body: JSON.stringify({
-					configuration,
+					configuration: {
+						...configuration,
+						generalConfiguration: {
+							...configuration?.generalConfiguration,
+							explain: true,
+							includeResponseString: true,
+						},
+						searchContextAttributes: transformToSearchContextAttributes(
+							attributes
+						),
+					},
 					elementInstances,
-
-					// TO DO: Enable when preview attributes available
-
-					// previewAttributes: attributes.filter(
-					// 	(attribute) => attribute.key
-					// ),
-
 				}),
 				headers: new Headers({
 					'Content-Type': 'application/json',
@@ -698,12 +702,15 @@ function EditSXPBlueprintForm({
 			</PageToolbar>
 
 			<PreviewSidebar
+				errors={previewInfo.results.errors}
 				loading={previewInfo.loading}
 				onFetchResults={_handleFetchPreviewSearch}
 				onFocusSXPElement={_handleFocusSXPElement}
 				onToggle={setShowPreview}
-				results={previewInfo.results}
+				responseString={previewInfo.results.responseString}
+				totalHits={previewInfo.results.totalHits}
 				visible={showPreview}
+				warnings={previewInfo.results.warnings}
 			/>
 
 			<div

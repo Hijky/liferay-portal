@@ -10,6 +10,8 @@ definition {
 		TestCase.setUpPortalInstance();
 
 		User.firstLoginPG();
+
+		Form.modifyModuleDefinitionTimeout(timeout = "15");
 	}
 
 	tearDown {
@@ -21,13 +23,15 @@ definition {
 		else {
 			Navigator.openURL();
 
+			Form.modifyModuleDefinitionTimeout(timeout = "7");
+
 			ProductMenu.gotoPortlet(
 				category = "Content & Data",
 				portlet = "Forms");
 
 			FormsAdmin.teardownForms();
 
-			Page.tearDownCP();
+			PagesAdmin.tearDownCP();
 		}
 	}
 

@@ -1,5 +1,23 @@
 definition {
 
+	macro activeCustomObject {
+		ObjectPortlet.selectCustomObject(label = "${objectName}");
+
+		CreateObject.checkToggleActive();
+
+		CreateObject.saveObject();
+	}
+
+	macro addRelationshipAndSelectEntry {
+		LexiconEntry.gotoAdd();
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		ClickNoError(
+			key_titleFieldName = "${titleFieldName}",
+			locator1 = "CreateObject#SELECT_ENTRY_IN_RELATIONSHIP_TAB");
+	}
+
 	macro assertAddedEntryRelationshipIsDisplayed {
 		LexiconEntry.gotoAdd();
 
@@ -50,6 +68,16 @@ definition {
 
 	macro assertDisabledObjectName {
 		AssertElementPresent(locator1 = "CreateObject#DISABLED_OBJECT_NAME");
+	}
+
+	macro assertDisabledPublishObjectButton {
+		AssertElementPresent(locator1 = "CreateObject#DISABLED_PUBLISH_OBJECT_BUTTON");
+	}
+
+	macro assertEntrySelectedOnRelationshipField {
+		AssertElementPresent(
+			key_entry = "${entry}",
+			locator1 = "CreateObject#VIEW_ENTRY_SELECTED_ON_RELATIONSHIP_FIELD");
 	}
 
 	macro assertFieldAddedOnBlock {
@@ -118,6 +146,12 @@ definition {
 			locator1 = "ObjectAdmin#FIELDS_RADIO_OPTION");
 	}
 
+	macro assertTitleFieldIsSelected {
+		AssertElementPresent(
+			locator1 = "CreateObject#TITLE_FIELD",
+			value1 = "${fieldLabel}");
+	}
+
 	macro assertToggleCollapsibleChecked {
 		AssertChecked.assertCheckedNotVisible(locator1 = "CreateObject#TOGGLE_COLLAPSIBLE");
 	}
@@ -170,6 +204,14 @@ definition {
 		Select(
 			locator1 = "CreateObject#FIELD_TYPE",
 			value1 = "${fieldType}");
+	}
+
+	macro inactiveCustomObject {
+		ObjectPortlet.selectCustomObject(label = "${objectName}");
+
+		CreateObject.checkToggleInactive();
+
+		CreateObject.saveObject();
 	}
 
 	macro saveObject {

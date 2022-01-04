@@ -46,11 +46,14 @@ import org.osgi.service.component.annotations.Reference;
 @Component(immediate = true, service = ReleasePublisher.class)
 public class ReleasePublisher {
 
-	public ServiceRegistration<Release> publish(Release release) {
+	public ServiceRegistration<Release> publish(
+		Release release, boolean initialRelease) {
+
 		Dictionary<String, Object> properties = new Hashtable<>();
 
 		properties.put(
 			"release.bundle.symbolic.name", release.getBundleSymbolicName());
+		properties.put("release.initial", initialRelease);
 		properties.put("release.state", release.getState());
 
 		try {
@@ -78,7 +81,7 @@ public class ReleasePublisher {
 	public ServiceRegistration<Release> publishInProgress(Release release) {
 		release.setState(_STATE_IN_PROGRESS);
 
-		return publish(release);
+		return publish(release, false);
 	}
 
 	public void unpublish(Release release) {
@@ -104,7 +107,7 @@ public class ReleasePublisher {
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
 		for (Release release : releases) {
-			publish(release);
+			publish(release, false);
 		}
 
 		_serviceRegistration = bundleContext.registerService(

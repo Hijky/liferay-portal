@@ -542,6 +542,18 @@ definition {
 		AssertElementNotPresent(locator1 = "Calendar#SCHEDULER_EVENT_DIALOG_BOX_EDIT_BUTTON");
 	}
 
+	macro clickDeclineButton {
+		AssertClick(
+			locator1 = "CalendarViewEventDetails#DECLINE_BUTTON",
+			value1 = "Decline");
+	}
+
+	macro clickMaybeButton {
+		AssertClick(
+			locator1 = "CalendarViewEventDetails#MAYBE_BUTTON",
+			value1 = "Maybe");
+	}
+
 	macro clickPublish {
 		AssertClick(
 			locator1 = "Button#SUBMIT",
@@ -1303,7 +1315,7 @@ definition {
 				category = "Site Builder",
 				portlet = "Pages");
 
-			SitePages.addPublicPage(pageName = "Marketplace Calendar Testing");
+			PagesAdmin.addPublicPage(pageName = "Marketplace Calendar Testing");
 
 			Navigator.gotoPage(pageName = "Marketplace Calendar Testing");
 
@@ -1330,7 +1342,7 @@ definition {
 				category = "Site Builder",
 				portlet = "Pages");
 
-			SitePages.addPublicPage(pageName = "Marketplace Calendar Testing");
+			PagesAdmin.addPublicPage(pageName = "Marketplace Calendar Testing");
 
 			Navigator.gotoPage(pageName = "Marketplace Calendar Testing");
 
@@ -1496,6 +1508,24 @@ definition {
 		CalendarEvent.viewTitleViaDetails(eventTitle = "${eventTitle}");
 	}
 
+	macro viewDetailsFields {
+		AssertElementPresent(
+			key_tab = "Status",
+			locator1 = "CalendarViewEventDetails#STATUS");
+
+		AssertElementPresent(
+			key_tab = "Starts",
+			locator1 = "CalendarViewEventDetails#START_DATE_FIELD");
+
+		AssertElementPresent(
+			key_tab = "Ends",
+			locator1 = "CalendarViewEventDetails#END_DATE_FIELD");
+
+		AssertElementPresent(
+			key_tab = "Resources",
+			locator1 = "CalendarViewEventDetails#RESOURCES_FIELD");
+	}
+
 	macro viewDetailsInPortlet {
 		AssertTextEquals(
 			locator1 = "Portlet#H3_HEADER",
@@ -1630,6 +1660,16 @@ definition {
 			userCalendarName = "${userCalendarName}");
 
 		Click(locator1 = "Calendar#CURRENT_SITE_CALENDARS_CALENDAR");
+	}
+
+	macro viewMaybeAndDeclineButtons {
+		AssertElementPresent(
+			key_tab = "Maybe",
+			locator1 = "CalendarViewEventDetails#MAYBE_BUTTON");
+
+		AssertElementPresent(
+			key_tab = "Decline",
+			locator1 = "CalendarViewEventDetails#DECLINE_BUTTON");
 	}
 
 	macro viewNoRepeating {

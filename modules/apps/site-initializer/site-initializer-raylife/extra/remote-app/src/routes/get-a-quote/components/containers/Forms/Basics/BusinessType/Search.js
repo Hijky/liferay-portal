@@ -23,11 +23,7 @@ import {BusinessTypeRadioGroup} from './RadioGroup';
 const MAX_LENGTH_TO_TRUNCATE = 28;
 
 export function BusinessTypeSearch({form, setNewSelectedProduct}) {
-	const {
-		formState: {errors},
-		register,
-		setValue,
-	} = useFormContext();
+	const {register, setValue} = useFormContext();
 	const [dispatchEvent] = useCustomEvent(TIP_EVENT);
 
 	const {selectedStep, setPercentage} = useStepWizard();
@@ -93,8 +89,9 @@ export function BusinessTypeSearch({form, setNewSelectedProduct}) {
 
 	const infoPanelButton = () => (
 		<ClayLabel
-			className={classNames('label-inverse-primary btn-info-panel', {
-				'label-solid-info': selectedTrigger,
+			className={classNames('btn-info-panel mt-3', {
+				'label-inverse-primary': selectedTrigger,
+				'label-tonal-primary': !selectedTrigger,
 			})}
 			onClick={showInfoPanel}
 		>
@@ -122,7 +119,11 @@ export function BusinessTypeSearch({form, setNewSelectedProduct}) {
 		}
 
 		if (isError) {
-			return <WarningBadge>{isError}</WarningBadge>;
+			return (
+				<>
+					<WarningBadge>{isError}</WarningBadge>
+				</>
+			);
 		}
 
 		if (businessTypes.length) {
@@ -152,11 +153,10 @@ export function BusinessTypeSearch({form, setNewSelectedProduct}) {
 
 	return (
 		<>
-			<div>
+			<div className="mb-5">
 				<SearchInput
-					className="bg-neutral-1 px-4 py-0 search"
+					className="bg-neutral-1 font-weight-bold px-4 py-0 search text-neutral-10 text-paragraph-lg"
 					defaultValue=""
-					error={errors?.basics?.businessSearch}
 					label="Search for your primary industry and then select it from the list."
 					placeholder="Begin typing to show options..."
 					required
@@ -166,7 +166,8 @@ export function BusinessTypeSearch({form, setNewSelectedProduct}) {
 					})}
 				>
 					<ClayButton
-						className="btn btn-primary font-weight-bolder search text-paragraph text-small-caps"
+						className="font-weight-bolder ml-3 search text-paragraph text-small-caps"
+						displayType="primary"
 						onClick={() => {
 							onSearch(form?.basics?.businessSearch);
 						}}
@@ -176,7 +177,7 @@ export function BusinessTypeSearch({form, setNewSelectedProduct}) {
 				</SearchInput>
 
 				<p className="paragraph">
-					i.e. Coffee shop, Plumber, Drop Shipping, Landscape, etc
+					i.e. Apartments, Coffee, Medical, Pet Stores, etc
 				</p>
 			</div>
 			{renderResults()}

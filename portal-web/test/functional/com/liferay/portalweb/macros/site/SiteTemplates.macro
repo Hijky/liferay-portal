@@ -23,7 +23,7 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		SitePages.addChildPage(
+		PagesAdmin.addChildPage(
 			childPageName = "${siteChildPageName}",
 			parentPageName = "${pageName}");
 	}
@@ -126,7 +126,8 @@ definition {
 		Panel.expandPanel(panel = "JavaScript");
 
 		Type(
-			locator1 = "SitePages#JAVASCRIPT_TEXTAREA",
+			key_text = "javascript",
+			locator1 = "TextArea#ANY",
 			value1 = "${javaScript}");
 
 		AssertClickNoError(
@@ -191,12 +192,12 @@ definition {
 			portlet = "Pages");
 
 		if (isSet(hasChildren)) {
-			SitePages.deletePage(
+			PagesAdmin.deletePage(
 				hasChildren = "true",
 				pageName = "${pageName}");
 		}
 		else {
-			SitePages.deletePage(pageName = "${pageName}");
+			PagesAdmin.deletePage(pageName = "${pageName}");
 		}
 	}
 
@@ -402,6 +403,12 @@ definition {
 		SelectWindow(locator1 = "Home - ${siteTemplateName} - ${siteName}");
 	}
 
+	macro openSiteTemplateInEditMode {
+		var templateID = SiteTemplates.getSiteTemplateID(siteTemplateName = "${siteTemplateName}");
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "group/${templateID}?p_l_mode=edit");
+	}
+
 	macro resetPageChanges {
 		WaitForElementPresent(locator1 = "ControlMenu#INFO");
 
@@ -548,7 +555,8 @@ definition {
 		Panel.expandPanel(panel = "JavaScript");
 
 		AssertTextEquals(
-			locator1 = "SitePages#JAVASCRIPT_TEXTAREA",
+			key_text = "javascript",
+			locator1 = "TextArea#ANY",
 			value1 = "${javaScript}");
 	}
 

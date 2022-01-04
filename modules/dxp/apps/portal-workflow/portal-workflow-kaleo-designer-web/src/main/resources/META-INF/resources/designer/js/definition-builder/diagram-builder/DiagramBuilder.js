@@ -21,13 +21,18 @@ import ReactFlow, {
 	Background,
 	Controls,
 	ReactFlowProvider,
+	addEdge,
 	isNode,
 } from 'react-flow-renderer';
 
 import {DefinitionBuilderContext} from '../DefinitionBuilderContext';
+import {singleEventObserver} from '../util/EventObserver';
 import {DiagramBuilderContextProvider} from './DiagramBuilderContext';
-import {defaultNodes, nodeTypes} from './components/nodes/utils';
+import {nodeTypes} from './components/nodes/utils';
 import Sidebar from './components/sidebar/Sidebar';
+import {isIdDuplicated} from './components/sidebar/utils';
+import edgeTypes from './components/transitions/Edge';
+import FloatingConnectionLine from './components/transitions/FloatingConnectionLine';
 
 let id = 2;
 const getId = () => `node_${id++}`;
@@ -50,7 +55,10 @@ const isPositionAvailable = (elements, newElementPosition) => {
 	let available = true;
 
 	elements.forEach((element) => {
-		if (isOverlapping(element.position, newElementPosition)) {
+		if (
+			isNode(element) &&
+			isOverlapping(element.position, newElementPosition)
+		) {
 			available = false;
 		}
 	});
@@ -59,15 +67,41 @@ const isPositionAvailable = (elements, newElementPosition) => {
 };
 
 export default function DiagramBuilder({version}) {
-	const {defaultLanguageId, selectedLanguageId} = useContext(
-		DefinitionBuilderContext
-	);
+	const {
+		defaultLanguageId,
+		elements,
+		selectedLanguageId,
+		setElements,
+	} = useContext(DefinitionBuilderContext);
 	const reactFlowWrapperRef = useRef(null);
 	const [availableArea, setAvailableArea] = useState(null);
-	const [elements, setElements] = useState(defaultNodes);
 	const [reactFlowInstance, setReactFlowInstance] = useState(null);
 	const [selectedNode, setSelectedNode] = useState(null);
 	const [selectedNodeNewId, setSelectedNodeNewId] = useState(null);
+
+	const onConnect = (params) => {
+		setElements((els) =>
+			addEdge(
+				{
+					...params,
+					arrowHeadType: 'arrowclosed',
+					data: {
+						label: `transition label`,
+					},
+					type: 'transition',
+				},
+				els
+			)
+		);
+	};
+
+	const onConnectEnd = () => {
+		singleEventObserver.notify('handle-connect-end', true);
+	};
+
+	const onConnectStart = (event, {nodeId}) => {
+		singleEventObserver.notify('handle-connect-start', nodeId);
+	};
 
 	const onDragOver = (event) => {
 		const reactFlowBounds = reactFlowWrapperRef.current.getBoundingClientRect();
@@ -79,20 +113,18 @@ export default function DiagramBuilder({version}) {
 
 		if (isPositionAvailable(elements, position)) {
 			setAvailableArea(true);
-
-			event.preventDefault();
-
-			event.dataTransfer.dropEffect = 'move';
 		}
 		else {
 			setAvailableArea(false);
 		}
+
+		event.preventDefault();
+
+		event.dataTransfer.dropEffect = 'move';
 	};
 
 	const onDrop = useCallback(
 		(event) => {
-			setAvailableArea(null);
-
 			const reactFlowBounds = reactFlowWrapperRef.current.getBoundingClientRect();
 
 			const position = reactFlowInstance.project({
@@ -108,6 +140,9 @@ export default function DiagramBuilder({version}) {
 				);
 
 				const newNode = {
+					data: {
+						newNode: true,
+					},
 					id: getId(),
 					position,
 					type,
@@ -115,8 +150,10 @@ export default function DiagramBuilder({version}) {
 
 				setElements((elements) => elements.concat(newNode));
 			}
+
+			setAvailableArea(null);
 		},
-		[elements, reactFlowInstance]
+		[elements, reactFlowInstance, setElements]
 	);
 
 	const onLoad = (reactFlowInstance) => {
@@ -155,7 +192,11 @@ export default function DiagramBuilder({version}) {
 	}, [selectedNode]);
 
 	useEffect(() => {
-		if (selectedNodeNewId && selectedNodeNewId.trim() !== '') {
+		if (
+			selectedNodeNewId &&
+			selectedNodeNewId.trim() !== '' &&
+			!isIdDuplicated(elements, selectedNodeNewId.trim())
+		) {
 			setElements((elements) =>
 				elements.map((element) => {
 					if (isNode(element) && element.id === selectedNode.id) {
@@ -173,12 +214,16 @@ export default function DiagramBuilder({version}) {
 				})
 			);
 		}
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedNode, selectedNodeNewId]);
 
 	const contextProps = {
 		availableArea,
+		elements,
 		selectedNode,
 		selectedNodeNewId,
+		setAvailableArea,
 		setElements,
 		setSelectedNode,
 		setSelectedNodeNewId,
@@ -190,9 +235,14 @@ export default function DiagramBuilder({version}) {
 				<div className="diagram-area" ref={reactFlowWrapperRef}>
 					<ReactFlowProvider>
 						<ReactFlow
+							connectionLineComponent={FloatingConnectionLine}
+							edgeTypes={edgeTypes}
 							elements={elements}
 							minZoom="0.1"
 							nodeTypes={nodeTypes}
+							onConnect={onConnect}
+							onConnectEnd={onConnectEnd}
+							onConnectStart={onConnectStart}
 							onDragOver={onDragOver}
 							onDrop={onDrop}
 							onLoad={onLoad}

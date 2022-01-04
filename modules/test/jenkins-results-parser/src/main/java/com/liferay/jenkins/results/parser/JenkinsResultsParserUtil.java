@@ -911,6 +911,15 @@ public class JenkinsResultsParserUtil {
 		return prefix + fileName;
 	}
 
+	public static String fixFileURL(String fileURL) {
+		try {
+			return URLDecoder.decode(fileURL, "UTF-8");
+		}
+		catch (UnsupportedEncodingException unsupportedEncodingException) {
+			throw new RuntimeException(unsupportedEncodingException);
+		}
+	}
+
 	public static String fixJSON(String json) {
 		json = json.replaceAll("'", "&#39;");
 		json = json.replaceAll("<", "&#60;");
@@ -930,17 +939,65 @@ public class JenkinsResultsParserUtil {
 		return json;
 	}
 
-	public static String fixURL(String url) {
-		url = url.replace(" ", "%20");
-		url = url.replace("#", "%23");
-		url = url.replace("(", "%28");
-		url = url.replace(")", "%29");
-		url = url.replace("[", "%5B");
-		url = url.replace("]", "%5D");
-		url = url.replace("<", "%3C");
-		url = url.replace(">", "%3E");
+	public static String fixURL(String urlString) {
+		URL url = null;
 
-		return url;
+		try {
+			url = new URL(urlString);
+		}
+		catch (MalformedURLException malformedURLException) {
+			try {
+				urlString = URLEncoder.encode(
+					urlString, StandardCharsets.UTF_8.name());
+
+				urlString = urlString.replaceAll("\\+", "%20");
+
+				return urlString;
+			}
+			catch (UnsupportedEncodingException unsupportedEncodingException) {
+				throw new RuntimeException(unsupportedEncodingException);
+			}
+		}
+
+		if (!urlString.contains("?")) {
+			return urlString;
+		}
+
+		StringBuilder sb = new StringBuilder(
+			urlString.replaceAll("(.*\\?).*", "$1"));
+
+		String queryString = url.getQuery();
+
+		if ((queryString == null) || queryString.isEmpty()) {
+			return sb.toString();
+		}
+
+		Matcher matcher = _urlQueryStringPattern.matcher(url.getQuery());
+
+		while (matcher.find()) {
+			sb.append(matcher.group(1));
+			sb.append("=");
+
+			try {
+				String queryParameterValue = matcher.group(2);
+
+				queryParameterValue = queryParameterValue.replaceAll(
+					"\\+", " ");
+
+				sb.append(
+					URLEncoder.encode(
+						queryParameterValue, StandardCharsets.UTF_8.name()));
+			}
+			catch (UnsupportedEncodingException unsupportedEncodingException) {
+				throw new RuntimeException(unsupportedEncodingException);
+			}
+
+			if (!matcher.hitEnd()) {
+				sb.append("&");
+			}
+		}
+
+		return sb.toString();
 	}
 
 	public static List<Build> flatten(List<Build> builds) {
@@ -3390,6 +3447,24 @@ public class JenkinsResultsParserUtil {
 		return string;
 	}
 
+	public static String removeDuplicates(
+		String delimiter, String delimitedString) {
+
+		if (isNullOrEmpty(delimitedString)) {
+			return delimitedString;
+		}
+
+		List<String> strings = new ArrayList<>();
+
+		for (String string : delimitedString.split(delimiter)) {
+			if (!strings.contains(string)) {
+				strings.add(string);
+			}
+		}
+
+		return join(",", strings);
+	}
+
 	public static List<File> removeExcludedFiles(
 		List<PathMatcher> excludesPathMatchers, List<File> files) {
 
@@ -3664,15 +3739,20 @@ public class JenkinsResultsParserUtil {
 
 		String key = url.replace("//", "/");
 
-		if (checkCache && !url.startsWith("file:")) {
-			if (debug) {
-				System.out.println("Loading " + url);
-			}
+		if (url.startsWith("file:")) {
+			url = fixFileURL(url);
+		}
+		else {
+			if (checkCache) {
+				if (debug) {
+					System.out.println("Loading " + url);
+				}
 
-			File cachedFile = _getCacheFile(_PREFIX_TO_STRING_CACHE + key);
+				File cachedFile = _getCacheFile(_PREFIX_TO_STRING_CACHE + key);
 
-			if ((cachedFile != null) && cachedFile.exists()) {
-				return new FileInputStream(cachedFile);
+				if ((cachedFile != null) && cachedFile.exists()) {
+					return new FileInputStream(cachedFile);
+				}
 			}
 		}
 
@@ -3856,7 +3936,9 @@ public class JenkinsResultsParserUtil {
 					}
 					catch (Exception exception) {
 						System.out.println(
-							"Unable to parse GitHub API rate limit headers");
+							combine(
+								"Unable to parse GitHub API rate limit headers",
+								"\nURL:\n    ", url));
 
 						exception.printStackTrace();
 					}
@@ -3951,6 +4033,19 @@ public class JenkinsResultsParserUtil {
 	}
 
 	public static JSONObject toJSONObject(String url) throws IOException {
+		if ((url != null) && url.startsWith("file:")) {
+			try {
+				return toJSONObject(url, false, 1, null, null, 0, 5, null);
+			}
+			catch (IOException ioException) {
+				if (!url.contains("[qt]")) {
+					throw ioException;
+				}
+
+				return toJSONObject(url.substring(0, url.indexOf("[qt]")));
+			}
+		}
+
 		return toJSONObject(
 			url, true, _RETRIES_SIZE_MAX_DEFAULT, null, null,
 			_SECONDS_RETRY_PERIOD_DEFAULT, _MILLIS_TIMEOUT_DEFAULT, null);
@@ -5394,6 +5489,8 @@ public class JenkinsResultsParserUtil {
 		"http(?:|s):\\/\\/test-(?<cohortNumber>[\\d]{1})-" +
 			"(?<masterNumber>[\\d]{1,2}).*(?:|\\.liferay\\.com)\\/+job\\/+" +
 				"(?<jobName>[\\w\\W]*?)\\/+(?<buildNumber>[0-9]*)");
+	private static final Pattern _urlQueryStringPattern = Pattern.compile(
+		"\\&??(\\w++)=([^\\&]*)");
 	private static final File _userHomeDir = new File(
 		System.getProperty("user.home"));
 

@@ -103,6 +103,7 @@ const ProductComparison = ({
 	purchasable = true,
 }) => {
 	const {category, mostPopular, price, promo, ...productDetails} = product;
+	const promoPrice = Number(promo);
 
 	return (
 		<div
@@ -112,13 +113,16 @@ const ProductComparison = ({
 			id="quote-comparison"
 		>
 			<div
-				className={classNames('header-size rounded-top', {
-					'bg-brand-secondary ': mostPopular,
-					'bg-neutral-0': !mostPopular,
-				})}
+				className={classNames(
+					'align-items-center d-flex header-size justify-content-center rounded-top',
+					{
+						'bg-brand-secondary ': mostPopular,
+						'bg-neutral-0': !mostPopular,
+					}
+				)}
 			>
 				{mostPopular && (
-					<p className="font-weight-bold text-center text-paragraph text-small-caps text-white">
+					<p className="font-weight-bold text-paragraph text-small-caps text-white">
 						{highlightMostPopularText}
 					</p>
 				)}
@@ -137,11 +141,15 @@ const ProductComparison = ({
 						</div>
 					</div>
 
-					<div className="font-weight-normal subtitle text-neutral-8 text-paragraph-xs">
-						Get covered for{' '}
+					<div className="font-weight-normal m-auto mt-1 quote-subtitle text-neutral-8 text-paragraph-xs">
+						Minimum payment of{' '}
 						<span className="text-brand-primary">
-							&#36;{promo} today
-						</span>
+							&#36;
+							{promoPrice % 1 === 0
+								? promoPrice
+								: promoPrice.toFixed(2)}{' '}
+						</span>{' '}
+						to get coverage today
 					</div>
 				</div>
 
@@ -153,7 +161,7 @@ const ProductComparison = ({
 					{purchasable && (
 						<div className="bg-transparent d-flex justify-content-center">
 							<ClayButton
-								className={classNames('btn px-4 py-3', {
+								className={classNames('px-4 py-3', {
 									'btn-outline-primary': !mostPopular,
 									'btn-primary': mostPopular,
 								})}
