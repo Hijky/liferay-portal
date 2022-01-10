@@ -493,6 +493,7 @@ definition {
 		property portal.release = "false";
 		property portal.upstream = "false";
 		property testray.component.names = "Training";
+		property portal.acceptance = "kevin";
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
@@ -529,7 +530,6 @@ definition {
 		UsersAndOrganizationsNavigator.gotoOrganizations();
 
 		LAR.importPortlet(
-			compressedFile = "true",
 			larFileName = "organizations-7.0.lar",
 			uploadFrom = "dependencies");
 
