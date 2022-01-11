@@ -1695,7 +1695,7 @@ definition {
 
 	@priority = "5"
 	test ImportCorruptedFile {
-		property portal.acceptance = "true";
+		property portal.acceptance = "kevin";
 		property portal.release = "false";
 
 		Navigator.openURL();
@@ -1710,7 +1710,6 @@ definition {
 
 		LAR.importPortlet(
 			cannotImport = "true",
-			compressedFile = "true",
 			larFileName = "bookmarks-corrupted.portlet.lar",
 			uploadFrom = "dependencies");
 	}

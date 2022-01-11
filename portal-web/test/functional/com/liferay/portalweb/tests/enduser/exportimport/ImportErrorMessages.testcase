@@ -24,9 +24,10 @@ definition {
 
 	@priority = "4"
 	test Import6210buildNumber {
+		property portal.acceptance = "kevin";
+		
 		LAR.importSiteCP(
 			cannotImport = "true",
-			compressedFile = "true",
 			import6210buildNumber = "true",
 			importFail = "true",
 			larFileName = "6210buildNumber.lar",
