@@ -53,6 +53,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
@@ -333,8 +334,6 @@ public class AssetEntryUsagesDisplayContext {
 				_renderRequest, getPortletURL(), null,
 				"there-are-no-asset-entry-usages");
 
-		assetEntryUsagesSearchContainer.setOrderByCol(_getOrderByCol());
-
 		boolean orderByAsc = false;
 
 		String orderByType = _getOrderByType();
@@ -343,49 +342,63 @@ public class AssetEntryUsagesDisplayContext {
 			orderByAsc = true;
 		}
 
-		assetEntryUsagesSearchContainer.setOrderByComparator(
-			new AssetEntryUsageModifiedDateComparator(orderByAsc));
+		OrderByComparator<AssetEntryUsage> orderByComparator =
+			new AssetEntryUsageModifiedDateComparator(orderByAsc);
+
+		assetEntryUsagesSearchContainer.setOrderByCol(_getOrderByCol());
+		assetEntryUsagesSearchContainer.setOrderByComparator(orderByComparator);
 		assetEntryUsagesSearchContainer.setOrderByType(_getOrderByType());
 
+		List<AssetEntryUsage> assetEntryUsages = null;
+
+		int assetEntryUsagesCount = 0;
+
 		if (Objects.equals(getNavigation(), "pages")) {
-			assetEntryUsagesSearchContainer.setResultsAndTotal(
-				() -> AssetEntryUsageLocalServiceUtil.getAssetEntryUsages(
+			assetEntryUsages =
+				AssetEntryUsageLocalServiceUtil.getAssetEntryUsages(
 					_assetEntry.getEntryId(),
 					AssetEntryUsageConstants.TYPE_LAYOUT,
 					assetEntryUsagesSearchContainer.getStart(),
 					assetEntryUsagesSearchContainer.getEnd(),
-					assetEntryUsagesSearchContainer.getOrderByComparator()),
-				getPagesUsageCount());
+					orderByComparator);
+
+			assetEntryUsagesCount = getPagesUsageCount();
 		}
 		else if (Objects.equals(getNavigation(), "page-templates")) {
-			assetEntryUsagesSearchContainer.setResultsAndTotal(
-				() -> AssetEntryUsageLocalServiceUtil.getAssetEntryUsages(
+			assetEntryUsages =
+				AssetEntryUsageLocalServiceUtil.getAssetEntryUsages(
 					_assetEntry.getEntryId(),
 					AssetEntryUsageConstants.TYPE_PAGE_TEMPLATE,
 					assetEntryUsagesSearchContainer.getStart(),
 					assetEntryUsagesSearchContainer.getEnd(),
-					assetEntryUsagesSearchContainer.getOrderByComparator()),
-				getPageTemplatesUsageCount());
+					orderByComparator);
+
+			assetEntryUsagesCount = getPageTemplatesUsageCount();
 		}
 		else if (Objects.equals(getNavigation(), "display-page-templates")) {
-			assetEntryUsagesSearchContainer.setResultsAndTotal(
-				() -> AssetEntryUsageLocalServiceUtil.getAssetEntryUsages(
+			assetEntryUsages =
+				AssetEntryUsageLocalServiceUtil.getAssetEntryUsages(
 					_assetEntry.getEntryId(),
 					AssetEntryUsageConstants.TYPE_DISPLAY_PAGE_TEMPLATE,
 					assetEntryUsagesSearchContainer.getStart(),
 					assetEntryUsagesSearchContainer.getEnd(),
-					assetEntryUsagesSearchContainer.getOrderByComparator()),
-				getDisplayPagesUsageCount());
+					orderByComparator);
+
+			assetEntryUsagesCount = getDisplayPagesUsageCount();
 		}
 		else {
-			assetEntryUsagesSearchContainer.setResultsAndTotal(
-				() -> AssetEntryUsageLocalServiceUtil.getAssetEntryUsages(
+			assetEntryUsages =
+				AssetEntryUsageLocalServiceUtil.getAssetEntryUsages(
 					_assetEntry.getEntryId(),
 					assetEntryUsagesSearchContainer.getStart(),
 					assetEntryUsagesSearchContainer.getEnd(),
-					assetEntryUsagesSearchContainer.getOrderByComparator()),
-				getAllUsageCount());
+					orderByComparator);
+
+			assetEntryUsagesCount = getAllUsageCount();
 		}
+
+		assetEntryUsagesSearchContainer.setResults(assetEntryUsages);
+		assetEntryUsagesSearchContainer.setTotal(assetEntryUsagesCount);
 
 		_searchContainer = assetEntryUsagesSearchContainer;
 

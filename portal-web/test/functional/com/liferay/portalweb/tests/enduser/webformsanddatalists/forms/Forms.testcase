@@ -7,11 +7,9 @@ definition {
 	property testray.main.component.name = "Forms";
 
 	setUp {
-		//TestCase.setUpPortalInstance();
+		TestCase.setUpPortalInstance();
 
 		User.firstLoginPG();
-
-		Form.modifyModuleDefinitionTimeout(timeout = "15");
 	}
 
 	tearDown {
@@ -22,8 +20,6 @@ definition {
 		}
 		else {
 			Navigator.openURL();
-
-			Form.modifyModuleDefinitionTimeout(timeout = "7");
 
 			ProductMenu.gotoPortlet(
 				category = "Content & Data",
@@ -44,7 +40,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#AddFormInGlobal";
+		property test.name.skip.portal.instance = "Forms#AddFormInGlobal";
 		property testray.component.names = "Training";
 
 		Navigator.openURL();
@@ -130,7 +126,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#AddFormToUserSiteAndViewNoDuplicates";
+		property test.name.skip.portal.instance = "Forms#AddFormToUserSiteAndViewNoDuplicates";
 
 		Navigator.openURL();
 
@@ -248,7 +244,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#AutosaveDisplaysANotification";
+		property test.name.skip.portal.instance = "Forms#AutosaveDisplaysANotification";
 
 		FormsAdmin.addForm();
 
@@ -273,7 +269,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#AutosaveIntervalCanBeConfigured";
+		property test.name.skip.portal.instance = "Forms#AutosaveIntervalCanBeConfigured";
 
 		Navigator.openURL();
 
@@ -338,7 +334,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#BelongsToRuleCanPairWithGuestUser";
+		property test.name.skip.portal.instance = "Forms#BelongsToRuleCanPairWithGuestUser";
 
 		FormsAdmin.addForm();
 
@@ -542,7 +538,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#CanBeCreatedWithoutTitle";
+		property test.name.skip.portal.instance = "Forms#CanBeCreatedWithoutTitle";
 
 		FormsAdmin.addForm();
 
@@ -683,7 +679,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#CanBeEditedAfterChangingLanguage";
+		property test.name.skip.portal.instance = "Forms#CanBeEditedAfterChangingLanguage";
 
 		FormsAdmin.addForm();
 
@@ -726,7 +722,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#CanBeEditedAfterChangingLocale";
+		property test.name.skip.portal.instance = "Forms#CanBeEditedAfterChangingLocale";
 
 		FormsAdmin.addForm();
 
@@ -875,7 +871,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#CanBeViewedAfterDeletingAField";
+		property test.name.skip.portal.instance = "Forms#CanBeViewedAfterDeletingAField";
 
 		FormsAdmin.addForm();
 
@@ -982,7 +978,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#ConfirmationAppearsWhenLeavingFormWithoutSaving";
+		property test.name.skip.portal.instance = "Forms#ConfirmationAppearsWhenLeavingFormWithoutSaving";
 
 		FormsAdmin.addForm();
 
@@ -1011,7 +1007,7 @@ definition {
 	@priority = "5"
 	test DataProviderCanRetrieveDataForGuestUser {
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "FormsDataProvider#DataProviderCanRetrieveDataForGuestUser";
+		property test.name.skip.portal.instance = "FormsDataProvider#DataProviderCanRetrieveDataForGuestUser";
 
 		var portalURL = PropsUtil.get("portal.url");
 
@@ -1095,7 +1091,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#EditAllFormFieldNames";
+		property test.name.skip.portal.instance = "Forms#EditAllFormFieldNames";
 
 		FormsAdmin.addForm();
 
@@ -1207,7 +1203,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#EditAllFormFieldsTypesUsedBySystemSettings";
+		property test.name.skip.portal.instance = "Forms#EditAllFormFieldsTypesUsedBySystemSettings";
 
 		Navigator.openURL();
 
@@ -1398,7 +1394,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#EditFormsConfigurationViaSystemSettings";
+		property test.name.skip.portal.instance = "Forms#EditFormsConfigurationViaSystemSettings";
 
 		Navigator.openURL();
 
@@ -1551,7 +1547,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#PagesCanBeDeleted";
+		property test.name.skip.portal.instance = "Forms#PagesCanBeDeleted";
 
 		FormsAdmin.addForm();
 
@@ -1682,7 +1678,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#SearchFormRecordMultipleEntries";
+		property test.name.skip.portal.instance = "Forms#SearchFormRecordMultipleEntries";
 
 		var fieldValueList = "testEntry1,exampleText,sampleAnswer";
 
@@ -1792,7 +1788,7 @@ definition {
 	@priority = "4"
 	test SubmitFormWithMultipleFieldsAndViewEntriesViaDescriptiveDisplay {
 		property forms.functional = "true";
-		//property test.name.skip.portal.instance = "Forms#SubmitFormWithMultipleFieldsAndViewEntriesViaDescriptiveDisplay";
+		property test.name.skip.portal.instance = "Forms#SubmitFormWithMultipleFieldsAndViewEntriesViaDescriptiveDisplay";
 
 		FormsAdmin.addForm();
 
@@ -1969,7 +1965,7 @@ definition {
 		property forms.functional = "true";
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		//property test.name.skip.portal.instance = "Forms#TitleAndDescriptionXSSUnescapedAfterUnpublish";
+		property test.name.skip.portal.instance = "Forms#TitleAndDescriptionXSSUnescapedAfterUnpublish";
 
 		FormsAdmin.addForm();
 
@@ -2020,7 +2016,7 @@ definition {
 		property portal.upstream = "true";
 		property test.assert.javascript.errors = "true";
 		property test.assert.warning.exceptions = "true";
-		//property test.name.skip.portal.instance = "Forms#ViewDefaultFieldNamesWithPunctuationCharacters";
+		property test.name.skip.portal.instance = "Forms#ViewDefaultFieldNamesWithPunctuationCharacters";
 
 		FormsAdmin.addForm();
 
@@ -2077,7 +2073,7 @@ definition {
 	@priority = "5"
 	test ViewSelectFromListOptionValueWithCharacter {
 		property forms.functional = "true";
-		//property test.name.skip.portal.instance = "Forms#ViewSelectFromListOptionValueWithCharacter";
+		property test.name.skip.portal.instance = "Forms#ViewSelectFromListOptionValueWithCharacter";
 
 		FormsAdmin.addForm();
 

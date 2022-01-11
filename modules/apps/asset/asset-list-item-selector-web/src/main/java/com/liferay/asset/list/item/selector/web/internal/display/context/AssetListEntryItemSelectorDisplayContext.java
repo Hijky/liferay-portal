@@ -42,6 +42,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -142,95 +143,107 @@ public class AssetListEntryItemSelectorDisplayContext {
 
 		String orderByCol = ParamUtil.getString(
 			_httpServletRequest, "orderByCol", "create-date");
-
-		searchContainer.setOrderByCol(orderByCol);
-
 		String orderByType = ParamUtil.getString(
 			_httpServletRequest, "orderByType", "asc");
 
-		searchContainer.setOrderByComparator(
+		OrderByComparator<AssetListEntry> orderByComparator =
 			AssetListPortletUtil.getAssetListEntryOrderByComparator(
-				orderByCol, orderByType));
+				orderByCol, orderByType);
+
+		searchContainer.setOrderByCol(orderByCol);
+		searchContainer.setOrderByComparator(orderByComparator);
 		searchContainer.setOrderByType(orderByType);
 
 		String keywords = ParamUtil.getString(_httpServletRequest, "keywords");
+
+		List<AssetListEntry> assetListEntries = null;
+		int assetListEntriesCount = 0;
 
 		List<String> itemTypes = _infoListItemSelectorCriterion.getItemTypes();
 
 		if (ListUtil.isEmpty(itemTypes)) {
 			if (Validator.isNotNull(keywords)) {
-				searchContainer.setResultsAndTotal(
-					() -> AssetListEntryServiceUtil.getAssetListEntries(
+				assetListEntries =
+					AssetListEntryServiceUtil.getAssetListEntries(
 						themeDisplay.getScopeGroupId(), keywords,
 						searchContainer.getStart(), searchContainer.getEnd(),
-						searchContainer.getOrderByComparator()),
+						searchContainer.getOrderByComparator());
+				assetListEntriesCount =
 					AssetListEntryServiceUtil.getAssetListEntriesCount(
-						themeDisplay.getScopeGroupId(), keywords));
+						themeDisplay.getScopeGroupId(), keywords);
 			}
 			else {
-				searchContainer.setResultsAndTotal(
-					() -> AssetListEntryServiceUtil.getAssetListEntries(
+				assetListEntries =
+					AssetListEntryServiceUtil.getAssetListEntries(
 						themeDisplay.getScopeGroupId(),
 						searchContainer.getStart(), searchContainer.getEnd(),
-						searchContainer.getOrderByComparator()),
+						searchContainer.getOrderByComparator());
+				assetListEntriesCount =
 					AssetListEntryServiceUtil.getAssetListEntriesCount(
-						themeDisplay.getScopeGroupId()));
+						themeDisplay.getScopeGroupId());
 			}
 		}
 		else if (Validator.isNull(
 					_infoListItemSelectorCriterion.getItemSubtype())) {
 
 			if (Validator.isNotNull(keywords)) {
-				searchContainer.setResultsAndTotal(
-					() -> AssetListEntryServiceUtil.getAssetListEntries(
+				assetListEntries =
+					AssetListEntryServiceUtil.getAssetListEntries(
 						new long[] {themeDisplay.getScopeGroupId()}, keywords,
 						itemTypes.toArray(new String[0]),
 						searchContainer.getStart(), searchContainer.getEnd(),
-						searchContainer.getOrderByComparator()),
+						searchContainer.getOrderByComparator());
+				assetListEntriesCount =
 					AssetListEntryServiceUtil.getAssetListEntriesCount(
 						new long[] {themeDisplay.getScopeGroupId()}, keywords,
-						itemTypes.toArray(new String[0])));
+						itemTypes.toArray(new String[0]));
 			}
 			else {
-				searchContainer.setResultsAndTotal(
-					() -> AssetListEntryServiceUtil.getAssetListEntries(
+				assetListEntries =
+					AssetListEntryServiceUtil.getAssetListEntries(
 						new long[] {themeDisplay.getScopeGroupId()},
 						itemTypes.toArray(new String[0]),
 						searchContainer.getStart(), searchContainer.getEnd(),
-						searchContainer.getOrderByComparator()),
+						searchContainer.getOrderByComparator());
+				assetListEntriesCount =
 					AssetListEntryServiceUtil.getAssetListEntriesCount(
 						new long[] {themeDisplay.getScopeGroupId()},
-						itemTypes.toArray(new String[0])));
+						itemTypes.toArray(new String[0]));
 			}
 		}
 		else {
 			if (Validator.isNotNull(keywords)) {
-				searchContainer.setResultsAndTotal(
-					() -> AssetListEntryServiceUtil.getAssetListEntries(
+				assetListEntries =
+					AssetListEntryServiceUtil.getAssetListEntries(
 						new long[] {themeDisplay.getScopeGroupId()}, keywords,
 						_infoListItemSelectorCriterion.getItemSubtype(),
 						_infoListItemSelectorCriterion.getItemType(),
 						searchContainer.getStart(), searchContainer.getEnd(),
-						searchContainer.getOrderByComparator()),
+						searchContainer.getOrderByComparator());
+				assetListEntriesCount =
 					AssetListEntryServiceUtil.getAssetListEntriesCount(
 						new long[] {themeDisplay.getScopeGroupId()}, keywords,
 						_infoListItemSelectorCriterion.getItemSubtype(),
-						_infoListItemSelectorCriterion.getItemType()));
+						_infoListItemSelectorCriterion.getItemType());
 			}
 			else {
-				searchContainer.setResultsAndTotal(
-					() -> AssetListEntryServiceUtil.getAssetListEntries(
+				assetListEntries =
+					AssetListEntryServiceUtil.getAssetListEntries(
 						new long[] {themeDisplay.getScopeGroupId()},
 						_infoListItemSelectorCriterion.getItemSubtype(),
 						_infoListItemSelectorCriterion.getItemType(),
 						searchContainer.getStart(), searchContainer.getEnd(),
-						searchContainer.getOrderByComparator()),
+						searchContainer.getOrderByComparator());
+				assetListEntriesCount =
 					AssetListEntryServiceUtil.getAssetListEntriesCount(
 						new long[] {themeDisplay.getScopeGroupId()},
 						_infoListItemSelectorCriterion.getItemSubtype(),
-						_infoListItemSelectorCriterion.getItemType()));
+						_infoListItemSelectorCriterion.getItemType());
 			}
 		}
+
+		searchContainer.setResults(assetListEntries);
+		searchContainer.setTotal(assetListEntriesCount);
 
 		return searchContainer;
 	}

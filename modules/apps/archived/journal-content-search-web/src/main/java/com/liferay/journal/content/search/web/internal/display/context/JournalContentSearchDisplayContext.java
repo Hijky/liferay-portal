@@ -146,14 +146,15 @@ public class JournalContentSearchDisplayContext {
 
 		ContentHits contentHits = new ContentHits();
 
-		contentHits.recordHits(
-			hits, layout.getGroupId(), layout.isPrivateLayout(),
-			_searchContainer.getStart(), _searchContainer.getEnd());
 		contentHits.setShowListed(
 			_journalContentSearchPortletInstanceConfiguration.showListed());
 
-		_searchContainer.setResultsAndTotal(
-			() -> ListUtil.fromArray(hits.getDocs()), hits.getLength());
+		contentHits.recordHits(
+			hits, layout.getGroupId(), layout.isPrivateLayout(),
+			_searchContainer.getStart(), _searchContainer.getEnd());
+
+		_searchContainer.setTotal(hits.getLength());
+		_searchContainer.setResults(ListUtil.fromArray(hits.getDocs()));
 
 		return _searchContainer;
 	}

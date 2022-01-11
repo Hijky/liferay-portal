@@ -68,6 +68,7 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -244,11 +245,34 @@ public class AssetCategoriesDisplayContext {
 			orderByAsc = true;
 		}
 
+		categoriesSearchContainer.setOrderByCol(_getOrderByCol());
 		categoriesSearchContainer.setOrderByComparator(
 			new AssetCategoryCreateDateComparator(orderByAsc));
 		categoriesSearchContainer.setOrderByType(orderByType);
 
+		EmptyOnClickRowChecker emptyOnClickRowChecker =
+			new EmptyOnClickRowChecker(_renderResponse);
+
+		StringBundler sb = new StringBundler(7);
+
+		sb.append("^(?!.*");
+		sb.append(_renderResponse.getNamespace());
+		sb.append("redirect).*(/vocabulary/");
+
 		AssetVocabulary vocabulary = getVocabulary();
+
+		sb.append(vocabulary.getVocabularyId());
+
+		sb.append("/category/");
+		sb.append(getCategoryId());
+		sb.append(")");
+
+		emptyOnClickRowChecker.setRememberCheckBoxStateURLRegex(sb.toString());
+
+		categoriesSearchContainer.setRowChecker(emptyOnClickRowChecker);
+
+		List<AssetCategory> categories = null;
+		int categoriesCount = 0;
 
 		if (Validator.isNotNull(_getKeywords())) {
 			Sort sort = null;
@@ -267,69 +291,58 @@ public class AssetCategoriesDisplayContext {
 					categoriesSearchContainer.getStart(),
 					categoriesSearchContainer.getEnd(), sort);
 
-			categoriesSearchContainer.setResultsAndTotal(
-				assetCategoryDisplay::getCategories,
-				assetCategoryDisplay.getTotal());
+			categoriesCount = assetCategoryDisplay.getTotal();
+
+			categoriesSearchContainer.setTotal(categoriesCount);
+
+			categories = assetCategoryDisplay.getCategories();
 		}
 		else if (isFlattenedNavigationAllowed()) {
 			AssetCategory category = getCategory();
 
-			AssetCategoryTreePathComparator assetCategoryTreePathComparator =
-				AssetCategoryTreePathComparator.getInstance(orderByAsc);
-
 			if (category == null) {
-				categoriesSearchContainer.setResultsAndTotal(
-					() -> AssetCategoryServiceUtil.getVocabularyCategories(
-						vocabulary.getVocabularyId(),
-						categoriesSearchContainer.getStart(),
-						categoriesSearchContainer.getEnd(),
-						assetCategoryTreePathComparator),
+				categoriesCount =
 					AssetCategoryServiceUtil.getVocabularyCategoriesCount(
-						vocabulary.getGroupId(), vocabulary.getVocabularyId()));
-			}
-			else {
-				categoriesSearchContainer.setResultsAndTotal(
-					() -> AssetCategoryServiceUtil.getVocabularyCategories(
-						category.getCategoryId(), vocabulary.getVocabularyId(),
-						categoriesSearchContainer.getStart(),
-						categoriesSearchContainer.getEnd(),
-						assetCategoryTreePathComparator),
-					AssetCategoryServiceUtil.getVocabularyCategoriesCount(
-						vocabulary.getGroupId(), category.getCategoryId(),
-						vocabulary.getVocabularyId()));
-			}
-		}
-		else {
-			categoriesSearchContainer.setResultsAndTotal(
-				() -> AssetCategoryServiceUtil.getVocabularyCategories(
-					vocabulary.getGroupId(), getCategoryId(),
+						vocabulary.getGroupId(), vocabulary.getVocabularyId());
+
+				categories = AssetCategoryServiceUtil.getVocabularyCategories(
 					vocabulary.getVocabularyId(),
 					categoriesSearchContainer.getStart(),
 					categoriesSearchContainer.getEnd(),
-					categoriesSearchContainer.getOrderByComparator()),
+					AssetCategoryTreePathComparator.getInstance(orderByAsc));
+			}
+			else {
+				categoriesCount =
+					AssetCategoryServiceUtil.getVocabularyCategoriesCount(
+						vocabulary.getGroupId(), category.getCategoryId(),
+						vocabulary.getVocabularyId());
+
+				categories = AssetCategoryServiceUtil.getVocabularyCategories(
+					category.getCategoryId(), vocabulary.getVocabularyId(),
+					categoriesSearchContainer.getStart(),
+					categoriesSearchContainer.getEnd(),
+					AssetCategoryTreePathComparator.getInstance(orderByAsc));
+			}
+
+			categoriesSearchContainer.setTotal(categoriesCount);
+		}
+		else {
+			categoriesCount =
 				AssetCategoryServiceUtil.getVocabularyCategoriesCount(
 					vocabulary.getGroupId(), getCategoryId(),
-					vocabulary.getVocabularyId()));
+					vocabulary.getVocabularyId());
+
+			categoriesSearchContainer.setTotal(categoriesCount);
+
+			categories = AssetCategoryServiceUtil.getVocabularyCategories(
+				vocabulary.getGroupId(), getCategoryId(),
+				vocabulary.getVocabularyId(),
+				categoriesSearchContainer.getStart(),
+				categoriesSearchContainer.getEnd(),
+				categoriesSearchContainer.getOrderByComparator());
 		}
 
-		EmptyOnClickRowChecker emptyOnClickRowChecker =
-			new EmptyOnClickRowChecker(_renderResponse);
-
-		StringBundler sb = new StringBundler(7);
-
-		sb.append("^(?!.*");
-		sb.append(_renderResponse.getNamespace());
-		sb.append("redirect).*(/vocabulary/");
-
-		sb.append(vocabulary.getVocabularyId());
-
-		sb.append("/category/");
-		sb.append(getCategoryId());
-		sb.append(")");
-
-		emptyOnClickRowChecker.setRememberCheckBoxStateURLRegex(sb.toString());
-
-		categoriesSearchContainer.setRowChecker(emptyOnClickRowChecker);
+		categoriesSearchContainer.setResults(categories);
 
 		_categoriesSearchContainer = categoriesSearchContainer;
 
@@ -602,9 +615,20 @@ public class AssetCategoriesDisplayContext {
 			orderByAsc = true;
 		}
 
-		vocabulariesSearchContainer.setOrderByComparator(
-			new AssetVocabularyCreateDateComparator(orderByAsc));
+		OrderByComparator<AssetVocabulary> orderByComparator =
+			new AssetVocabularyCreateDateComparator(orderByAsc);
+
+		vocabulariesSearchContainer.setOrderByComparator(orderByComparator);
+
 		vocabulariesSearchContainer.setOrderByType(orderByType);
+
+		EmptyOnClickRowChecker emptyOnClickRowChecker =
+			new EmptyOnClickRowChecker(_renderResponse);
+
+		vocabulariesSearchContainer.setRowChecker(emptyOnClickRowChecker);
+
+		List<AssetVocabulary> vocabularies = null;
+		int vocabulariesCount = 0;
 
 		String keywords = _getKeywords();
 
@@ -617,30 +641,35 @@ public class AssetCategoriesDisplayContext {
 					vocabulariesSearchContainer.getStart(),
 					vocabulariesSearchContainer.getEnd(), sort);
 
-			vocabulariesSearchContainer.setResultsAndTotal(
-				assetVocabularyDisplay::getVocabularies,
-				assetVocabularyDisplay.getTotal());
+			vocabulariesCount = assetVocabularyDisplay.getTotal();
+
+			vocabulariesSearchContainer.setTotal(vocabulariesCount);
+
+			vocabularies = assetVocabularyDisplay.getVocabularies();
 		}
 		else {
-			vocabulariesSearchContainer.setResultsAndTotal(
-				() -> AssetVocabularyServiceUtil.getGroupVocabularies(
-					_themeDisplay.getScopeGroupId(), false,
-					vocabulariesSearchContainer.getStart(),
-					vocabulariesSearchContainer.getEnd(),
-					vocabulariesSearchContainer.getOrderByComparator()),
+			vocabulariesCount =
 				AssetVocabularyServiceUtil.getGroupVocabulariesCount(
-					_themeDisplay.getScopeGroupId()));
+					_themeDisplay.getScopeGroupId());
 
-			if (vocabulariesSearchContainer.getTotal() == 0) {
-				vocabulariesSearchContainer.setResultsAndTotal(
-					vocabulariesSearchContainer::getResults,
+			vocabulariesSearchContainer.setTotal(vocabulariesCount);
+
+			vocabularies = AssetVocabularyServiceUtil.getGroupVocabularies(
+				_themeDisplay.getScopeGroupId(), false,
+				vocabulariesSearchContainer.getStart(),
+				vocabulariesSearchContainer.getEnd(),
+				vocabulariesSearchContainer.getOrderByComparator());
+
+			if (vocabulariesCount == 0) {
+				vocabulariesCount =
 					AssetVocabularyServiceUtil.getGroupVocabulariesCount(
-						_themeDisplay.getScopeGroupId()));
+						_themeDisplay.getScopeGroupId());
+
+				vocabulariesSearchContainer.setTotal(vocabulariesCount);
 			}
 		}
 
-		vocabulariesSearchContainer.setRowChecker(
-			new EmptyOnClickRowChecker(_renderResponse));
+		vocabulariesSearchContainer.setResults(vocabularies);
 
 		_vocabulariesSearchContainer = vocabulariesSearchContainer;
 
