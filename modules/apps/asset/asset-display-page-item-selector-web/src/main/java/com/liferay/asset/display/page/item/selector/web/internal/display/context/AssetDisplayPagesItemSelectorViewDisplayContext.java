@@ -32,6 +32,8 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
+import java.util.List;
+
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
@@ -76,27 +78,20 @@ public class AssetDisplayPagesItemSelectorViewDisplayContext {
 				"there-are-no-display-page-templates");
 
 		assetDisplayPageSearchContainer.setOrderByCol(_getOrderByCol());
-		assetDisplayPageSearchContainer.setOrderByComparator(
+
+		OrderByComparator<LayoutPageTemplateEntry> orderByComparator =
 			_getLayoutPageTemplateEntryOrderByComparator(
-				_getOrderByCol(), getOrderByType()));
+				_getOrderByCol(), getOrderByType());
+
+		assetDisplayPageSearchContainer.setOrderByComparator(orderByComparator);
+
 		assetDisplayPageSearchContainer.setOrderByType(getOrderByType());
 
+		List<LayoutPageTemplateEntry> layoutPageTemplateEntries = null;
+		int layoutPageTemplateEntriesCount = 0;
+
 		if (Validator.isNotNull(_getKeywords())) {
-			assetDisplayPageSearchContainer.setResultsAndTotal(
-				() ->
-					LayoutPageTemplateEntryServiceUtil.
-						getLayoutPageTemplateEntries(
-							_themeDisplay.getScopeGroupId(),
-							_assetDisplayPageSelectorCriterion.getClassNameId(),
-							_assetDisplayPageSelectorCriterion.getClassTypeId(),
-							_getKeywords(),
-							LayoutPageTemplateEntryTypeConstants.
-								TYPE_DISPLAY_PAGE,
-							WorkflowConstants.STATUS_APPROVED,
-							assetDisplayPageSearchContainer.getStart(),
-							assetDisplayPageSearchContainer.getEnd(),
-							assetDisplayPageSearchContainer.
-								getOrderByComparator()),
+			layoutPageTemplateEntriesCount =
 				LayoutPageTemplateEntryServiceUtil.
 					getLayoutPageTemplateEntriesCount(
 						_themeDisplay.getScopeGroupId(),
@@ -104,31 +99,45 @@ public class AssetDisplayPagesItemSelectorViewDisplayContext {
 						_assetDisplayPageSelectorCriterion.getClassTypeId(),
 						_getKeywords(),
 						LayoutPageTemplateEntryTypeConstants.TYPE_DISPLAY_PAGE,
-						WorkflowConstants.STATUS_APPROVED));
+						WorkflowConstants.STATUS_APPROVED);
+
+			layoutPageTemplateEntries =
+				LayoutPageTemplateEntryServiceUtil.getLayoutPageTemplateEntries(
+					_themeDisplay.getScopeGroupId(),
+					_assetDisplayPageSelectorCriterion.getClassNameId(),
+					_assetDisplayPageSelectorCriterion.getClassTypeId(),
+					_getKeywords(),
+					LayoutPageTemplateEntryTypeConstants.TYPE_DISPLAY_PAGE,
+					WorkflowConstants.STATUS_APPROVED,
+					assetDisplayPageSearchContainer.getStart(),
+					assetDisplayPageSearchContainer.getEnd(),
+					assetDisplayPageSearchContainer.getOrderByComparator());
 		}
 		else {
-			assetDisplayPageSearchContainer.setResultsAndTotal(
-				() ->
-					LayoutPageTemplateEntryServiceUtil.
-						getLayoutPageTemplateEntries(
-							_themeDisplay.getScopeGroupId(),
-							_assetDisplayPageSelectorCriterion.getClassNameId(),
-							_assetDisplayPageSelectorCriterion.getClassTypeId(),
-							LayoutPageTemplateEntryTypeConstants.
-								TYPE_DISPLAY_PAGE,
-							WorkflowConstants.STATUS_APPROVED,
-							assetDisplayPageSearchContainer.getStart(),
-							assetDisplayPageSearchContainer.getEnd(),
-							assetDisplayPageSearchContainer.
-								getOrderByComparator()),
+			layoutPageTemplateEntriesCount =
 				LayoutPageTemplateEntryServiceUtil.
 					getLayoutPageTemplateEntriesCount(
 						_themeDisplay.getScopeGroupId(),
 						_assetDisplayPageSelectorCriterion.getClassNameId(),
 						_assetDisplayPageSelectorCriterion.getClassTypeId(),
 						LayoutPageTemplateEntryTypeConstants.TYPE_DISPLAY_PAGE,
-						WorkflowConstants.STATUS_APPROVED));
+						WorkflowConstants.STATUS_APPROVED);
+
+			layoutPageTemplateEntries =
+				LayoutPageTemplateEntryServiceUtil.getLayoutPageTemplateEntries(
+					_themeDisplay.getScopeGroupId(),
+					_assetDisplayPageSelectorCriterion.getClassNameId(),
+					_assetDisplayPageSelectorCriterion.getClassTypeId(),
+					LayoutPageTemplateEntryTypeConstants.TYPE_DISPLAY_PAGE,
+					WorkflowConstants.STATUS_APPROVED,
+					assetDisplayPageSearchContainer.getStart(),
+					assetDisplayPageSearchContainer.getEnd(),
+					assetDisplayPageSearchContainer.getOrderByComparator());
 		}
+
+		assetDisplayPageSearchContainer.setTotal(
+			layoutPageTemplateEntriesCount);
+		assetDisplayPageSearchContainer.setResults(layoutPageTemplateEntries);
 
 		_assetDisplayPageSearchContainer = assetDisplayPageSearchContainer;
 

@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portlet.asset.util.comparator.AssetTagNameComparator;
 
+import java.util.List;
 import java.util.Locale;
 
 import javax.portlet.PortletURL;
@@ -139,19 +140,25 @@ public class AssetTagsSelectorDisplayContext {
 
 		tagsSearchContainer.setOrderByComparator(
 			new AssetTagNameComparator(orderByAsc));
-		tagsSearchContainer.setOrderByType(orderByType);
 
-		tagsSearchContainer.setResultsAndTotal(
-			() -> AssetTagServiceUtil.getTags(
-				_getGroupIds(), _getKeywords(), tagsSearchContainer.getStart(),
-				tagsSearchContainer.getEnd(),
-				tagsSearchContainer.getOrderByComparator()),
-			AssetTagServiceUtil.getTagsCount(_getGroupIds(), _getKeywords()));
+		tagsSearchContainer.setOrderByType(orderByType);
 
 		if (_rowChecker) {
 			tagsSearchContainer.setRowChecker(
 				new EntriesChecker(_renderRequest, _renderResponse));
 		}
+
+		int tagsCount = AssetTagServiceUtil.getTagsCount(
+			_getGroupIds(), _getKeywords());
+
+		tagsSearchContainer.setTotal(tagsCount);
+
+		List<AssetTag> tags = AssetTagServiceUtil.getTags(
+			_getGroupIds(), _getKeywords(), tagsSearchContainer.getStart(),
+			tagsSearchContainer.getEnd(),
+			tagsSearchContainer.getOrderByComparator());
+
+		tagsSearchContainer.setResults(tags);
 
 		_tagsSearchContainer = tagsSearchContainer;
 

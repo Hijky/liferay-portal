@@ -44,6 +44,7 @@ import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.SearchOrderByUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -117,34 +118,43 @@ public class AssetListDisplayContext {
 				_renderRequest, _renderResponse.createRenderURL(), null,
 				"there-are-no-collections");
 
-		assetListEntriesSearchContainer.setOrderByCol(_getOrderByCol());
-		assetListEntriesSearchContainer.setOrderByComparator(
-			AssetListPortletUtil.getAssetListEntryOrderByComparator(
-				_getOrderByCol(), getOrderByType()));
-		assetListEntriesSearchContainer.setOrderByType(getOrderByType());
-
-		if (_isSearch()) {
-			assetListEntriesSearchContainer.setResultsAndTotal(
-				() -> AssetListEntryServiceUtil.getAssetListEntries(
-					_themeDisplay.getScopeGroupId(), _getKeywords(),
-					assetListEntriesSearchContainer.getStart(),
-					assetListEntriesSearchContainer.getEnd(),
-					assetListEntriesSearchContainer.getOrderByComparator()),
-				AssetListEntryServiceUtil.getAssetListEntriesCount(
-					_themeDisplay.getScopeGroupId(), _getKeywords()));
-		}
-		else {
-			assetListEntriesSearchContainer.setResultsAndTotal(
-				() -> AssetListEntryServiceUtil.getAssetListEntries(
-					_themeDisplay.getScopeGroupId(),
-					assetListEntriesSearchContainer.getStart(),
-					assetListEntriesSearchContainer.getEnd(),
-					assetListEntriesSearchContainer.getOrderByComparator()),
-				getAssetListEntriesCount());
-		}
-
 		assetListEntriesSearchContainer.setRowChecker(
 			new EmptyOnClickRowChecker(_renderResponse));
+
+		OrderByComparator<AssetListEntry> orderByComparator =
+			AssetListPortletUtil.getAssetListEntryOrderByComparator(
+				_getOrderByCol(), getOrderByType());
+
+		assetListEntriesSearchContainer.setOrderByCol(_getOrderByCol());
+		assetListEntriesSearchContainer.setOrderByComparator(orderByComparator);
+		assetListEntriesSearchContainer.setOrderByType(getOrderByType());
+
+		List<AssetListEntry> assetListEntries = null;
+
+		int assetListEntriesCount = 0;
+
+		if (_isSearch()) {
+			assetListEntries = AssetListEntryServiceUtil.getAssetListEntries(
+				_themeDisplay.getScopeGroupId(), _getKeywords(),
+				assetListEntriesSearchContainer.getStart(),
+				assetListEntriesSearchContainer.getEnd(), orderByComparator);
+
+			assetListEntriesCount =
+				AssetListEntryServiceUtil.getAssetListEntriesCount(
+					_themeDisplay.getScopeGroupId(), _getKeywords());
+		}
+		else {
+			assetListEntries = AssetListEntryServiceUtil.getAssetListEntries(
+				_themeDisplay.getScopeGroupId(),
+				assetListEntriesSearchContainer.getStart(),
+				assetListEntriesSearchContainer.getEnd(), orderByComparator);
+
+			assetListEntriesCount = getAssetListEntriesCount();
+		}
+
+		assetListEntriesSearchContainer.setResults(assetListEntries);
+
+		assetListEntriesSearchContainer.setTotal(assetListEntriesCount);
 
 		_assetListEntriesSearchContainer = assetListEntriesSearchContainer;
 
@@ -221,7 +231,9 @@ public class AssetListDisplayContext {
 
 		String className = clazz.getName();
 
-		return className.substring(className.lastIndexOf(StringPool.PERIOD));
+		int pos = className.lastIndexOf(StringPool.PERIOD);
+
+		return className.substring(pos + 1);
 	}
 
 	public ClassType getClassType(
