@@ -72,6 +72,36 @@ import java.util.concurrent.Future;
  */
 public class SourceFormatter {
 
+	public static final ExcludeSyntaxPattern[] DEFAULT_EXCLUDE_SYNTAX_PATTERNS =
+		{
+			new ExcludeSyntaxPattern(ExcludeSyntax.GLOB, "**/.git/**"),
+			new ExcludeSyntaxPattern(ExcludeSyntax.GLOB, "**/.gradle/**"),
+			new ExcludeSyntaxPattern(ExcludeSyntax.GLOB, "**/.idea/**"),
+			new ExcludeSyntaxPattern(ExcludeSyntax.GLOB, "**/.m2/**"),
+			new ExcludeSyntaxPattern(ExcludeSyntax.GLOB, "**/.settings/**"),
+			new ExcludeSyntaxPattern(ExcludeSyntax.GLOB, "**/bin/**"),
+			new ExcludeSyntaxPattern(ExcludeSyntax.GLOB, "**/build/**"),
+			new ExcludeSyntaxPattern(ExcludeSyntax.GLOB, "**/classes/**"),
+			new ExcludeSyntaxPattern(
+				ExcludeSyntax.GLOB, "**/liferay-theme.json"),
+			new ExcludeSyntaxPattern(
+				ExcludeSyntax.GLOB, "**/npm-shrinkwrap.json"),
+			new ExcludeSyntaxPattern(
+				ExcludeSyntax.GLOB, "**/package-lock.json"),
+			new ExcludeSyntaxPattern(ExcludeSyntax.GLOB, "**/test-classes/**"),
+			new ExcludeSyntaxPattern(ExcludeSyntax.GLOB, "**/test-coverage/**"),
+			new ExcludeSyntaxPattern(ExcludeSyntax.GLOB, "**/test-results/**"),
+			new ExcludeSyntaxPattern(ExcludeSyntax.GLOB, "**/tmp/**"),
+			new ExcludeSyntaxPattern(
+				ExcludeSyntax.GLOB, "**/node_modules_cache/**"),
+			new ExcludeSyntaxPattern(
+				ExcludeSyntax.REGEX,
+				".*/tests?/.*/dependencies/.+\\.(jar|lar|war|zip)/.+"),
+			new ExcludeSyntaxPattern(
+				ExcludeSyntax.REGEX,
+				"^((?!/frontend-js-node-shims/src/).)*/node_modules/.*")
+		};
+
 	public static void main(String[] args) throws Exception {
 		Map<String, String> arguments = ArgumentsUtil.parseArguments(args);
 
