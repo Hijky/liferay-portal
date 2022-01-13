@@ -639,6 +639,8 @@ definition {
 
 	@priority = "5"
 	test JSFFlowsPortletSmoke {
+		property portal.acceptance = "kevin";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Bridge Demos",
 			layoutName = "jsf flows");
