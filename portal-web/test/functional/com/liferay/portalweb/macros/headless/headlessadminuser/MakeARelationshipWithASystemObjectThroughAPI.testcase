@@ -1,0 +1,100 @@
+@component-name = "portal-headless"
+definition {
+
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property testray.component.names = "Object";
+	property testray.main.component.name = "Headless";
+
+	setUp {
+		TestCase.setUpPortalInstanceNoSelenium();
+	}
+
+	tearDown {
+		UserAccountAPI.deleteRelationship(name = "User");
+
+		JSONUser.deleteUserByEmailAddress(userEmailAddress = "user1@liferay.com");
+
+		JSONUser.deleteUserByEmailAddress(userEmailAddress = "user2@liferay.com");
+
+		ObjectAdmin.deleteObjectViaAPI(objectName = "Foundation");
+	}
+
+	@disable-webdriver = "true"
+	@priority = "4"
+	test CanRelateCustomObjectEntriesToSystemObjectEntriesByManyToMany {
+		property portal.acceptance = "true";
+
+		task ("Given a foundation object") {
+			var objectDefinitionId2 = ObjectDefinitionAPI.createAndPublishObjectDefinition(
+				en_US_label = "foundation",
+				en_US_plural_label = "foundations",
+				name = "Foundation",
+				requiredStringFieldName = "name");
+		}
+
+		task ("Given manyToMany relationship usersFoundations created") {
+			var objectDefinitionId1 = ObjectDefinitionAPI.getObjectDefinitionIdByName(name = "User");
+
+			var relationshipName = ObjectDefinitionAPI.createRelationship(
+				deletionType = "cascade",
+				en_US_label = "UsersFoundations",
+				name = "usersFoundations",
+				objectDefinitionId1 = "${objectDefinitionId1}",
+				objectDefinitionId2 = "${objectDefinitionId2}",
+				type = "manyToMany");
+		}
+
+		task ("Given two foundation entries created") {
+			var foundationId1 = ObjectDefinitionAPI.createObjectEntryWithName(
+				en_US_plural_label = "foundations",
+				name = "Foundation First");
+			var foundationId2 = ObjectDefinitionAPI.createObjectEntryWithName(
+				en_US_plural_label = "foundations",
+				name = "Foundation Second");
+		}
+
+		task ("Given two userAccount entries created") {
+			UserAccountAPI.setUpGlobalUserAccountId(
+				alternateName = "user1",
+				emailAddress = "user1@liferay.com",
+				familyName = "userfn1",
+				givenName = "usergn1");
+
+            var userAccountId1 = "${staticUserAccountId}";
+
+			UserAccountAPI.setUpGlobalUserAccountId(
+				alternateName = "user2",
+				emailAddress = "user2@liferay.com",
+				familyName = "userfn2",
+				givenName = "usergn2");
+
+            var userAccountId2 = "${staticUserAccountId}";
+		}
+
+		task ("When each foundation is related to each userAccount through userAccounts PUT endpoint") {
+			UserAccountAPI.relateObjectEntries(
+				customObjectId = "${foundationId1}",
+				relationshipName = "usersFoundations",
+				userAccountId = "${userAccountId1}");
+
+			UserAccountAPI.relateObjectEntries(
+				customObjectId = "${foundationId2}",
+				relationshipName = "usersFoundations",
+				userAccountId = "${userAccountId2}");
+		}
+
+		task ("Then I can see the entry correctly related in GET request response") {
+			UserAccountAPI.assertResponseHasCorrectRelatedEntryName(
+				expectedValue = "Foundation First",
+				relationshipName = "usersFoundations",
+				userAccountId = "${userAccountId1}");
+
+			UserAccountAPI.assertResponseHasCorrectRelatedEntryName(
+				expectedValue = "Foundation Second",
+				relationshipName = "usersFoundations",
+				userAccountId = "${userAccountId2}");
+		}
+	}
+
+}
