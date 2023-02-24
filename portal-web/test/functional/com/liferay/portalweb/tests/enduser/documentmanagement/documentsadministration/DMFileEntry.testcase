@@ -2474,6 +2474,7 @@ definition {
 	test CanViewExpiredDocument {
 		property custom.properties = "company.default.time.zone=America/Los_Angeles";
 		property test.name.skip.portal.instance = "DMFileEntry#CanViewExpiredDocument";
+		property portal.acceptance = "issac";
 
 		DMDocument.updateCheckInterval(fieldValue = 1);
 
@@ -2500,9 +2501,7 @@ definition {
 
 		Notifications.gotoNotifications();
 
-		Notifications.viewExpiredContent(
-			contentBody = "Document_1.txt",
-			user = "Test Test");
+		Notifications.viewExpiredContent(contentBody = "Document_1.txt");
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
