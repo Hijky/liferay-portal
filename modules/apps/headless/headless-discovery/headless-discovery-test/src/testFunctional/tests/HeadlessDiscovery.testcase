@@ -127,13 +127,13 @@ definition {
 	@priority = 5
 	test CanLoadAPIExplorerFromCustomContext {
 		property portal.acceptance = "true";
-		property portal.context = "world";
+		property portal.context = "liferay";
 		property skip.clean-app-server-deploy-dir = "true";
 		property test.name.skip.portal.instance = "HeadlessDiscovery#CanLoadAPIExplorerFromCustomContext";
 
-		task ("When I navigate to localhost:8080/world/o/api") {
+		task ("When I navigate to localhost:8080/liferay/o/api") {
 			var portalURL = PropsUtil.get("portal.url");
-			var baseURL = "world";
+			var baseURL = "liferay";
 
 			APIExplorer.navigateToOpenAPI(baseURL = ${baseURL});
 		}
