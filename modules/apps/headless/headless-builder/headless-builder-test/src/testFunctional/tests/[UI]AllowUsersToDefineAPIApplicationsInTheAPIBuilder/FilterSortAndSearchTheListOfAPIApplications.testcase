@@ -46,8 +46,6 @@ definition {
 	@priority = 4
 	test CanFilterAPIsByExcludeStatus {
 		property portal.acceptance = "true";
-		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
 
 		task ("When I filter by Published status with exclude enabled") {
 			APIBuilderUI.filterByStatus(
@@ -76,8 +74,6 @@ definition {
 	@priority = 4
 	test CanFilterAPIsByLastUpdated {
 		property portal.acceptance = "true";
-		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
 
 		task ("When I filter by Last updated From 06/30/2023 to 06/30/2023") {
 			APIBuilderUI.filterByLastUpdated(
@@ -95,8 +91,6 @@ definition {
 	@priority = 4
 	test CanFilterAPIsByStatus {
 		property portal.acceptance = "true";
-		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
 
 		task ("When I filter by Published status") {
 			APIBuilderUI.filterByStatus(labelName = "Published");
@@ -123,8 +117,6 @@ definition {
 	@priority = 4
 	test CanSearchAPIsByTitle {
 		property portal.acceptance = "true";
-		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
 
 		task ("When I search the API applications with a valid title") {
 			APIBuilderUI.searchItem(value = "test1");
@@ -138,8 +130,6 @@ definition {
 	@priority = 4
 	test CanSearchAPIsWithoutAvailableOnes {
 		property portal.acceptance = "true";
-		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
 
 		task ("When I search the API applications with unrelated word") {
 			APIBuilderUI.searchItem(value = "Application");
@@ -155,8 +145,6 @@ definition {
 	@priority = 4
 	test CanSortAPIsByLastUpdated {
 		property portal.acceptance = "true";
-		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
 
 		task ("When I sort the APIs by Last Updated") {
 			Click(
@@ -172,8 +160,6 @@ definition {
 	@priority = 4
 	test CanSortAPIsByStatus {
 		property portal.acceptance = "true";
-		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
 
 		task ("When I sort the APIs by Status") {
 			Click(
@@ -189,8 +175,6 @@ definition {
 	@priority = 4
 	test CanSortAPIsByTitle {
 		property portal.acceptance = "true";
-		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
 
 		task ("When I sort the APIs by Title") {
 			Click(
